@@ -130,27 +130,32 @@
       <div class="logo-text">SlackPulse</div>
     </div>
     <div class="connect-sub">Workspace analytics — activity patterns, top contributors &amp; engagement</div>
-    <div class="field-label">Slack Bot or User Token</div>
-    <input id="token-input" class="token-input" type="password" placeholder="xoxb-... or xoxp-..."/>
-    <button id="connect-btn" class="connect-btn inactive">CONNECT →</button>
+    <!-- Sign in with Slack -->
+    <a id="slack-oauth-btn" href="/auth/login" style="
+      display:flex; align-items:center; justify-content:center; gap:12px;
+      background:#4A154B; color:#fff; border-radius:8px; padding:14px 24px;
+      font-size:15px; font-weight:700; text-decoration:none; letter-spacing:0.3px;
+      box-shadow:0 0 24px #4A154B88; transition:all .2s; margin-bottom:16px;
+      font-family:'Space Mono',monospace;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 122.8 122.8">
+        <path d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zm6.5 0c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z" fill="#E01E5A"/>
+        <path d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zm0 6.5c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z" fill="#36C5F0"/>
+        <path d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zm-6.5 0c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z" fill="#2EB67D"/>
+        <path d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zm0-6.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z" fill="#ECB22E"/>
+      </svg>
+      Sign in with Slack
+    </a>
+
     <div id="connect-error" class="error-box"></div>
+
     <div class="privacy-note">
-      🔒 <strong>Privacy:</strong> This app only reads public &amp; private <em>channels</em> using
-      <code>channels:history</code> and <code>groups:history</code> scopes.
-      Direct messages (DMs) are never accessed.
+      🔒 <strong>Privacy:</strong> Only reads public &amp; private <em>channels</em>.
+      Direct messages (DMs) are <strong>never</strong> accessed.
+      Your token is never stored on the server.
     </div>
-    <button class="setup-toggle" onclick="toggleSetup(this)">▸ PROXY SETUP INSTRUCTIONS</button>
-    <div class="setup-guide">
-      <div class="setup-title">▸ ONE-TIME SETUP (~2 min)</div>
-      <div class="setup-desc">Slack blocks direct browser requests. Run this local proxy:</div>
-      <div class="cmd-line normal">$ mkdir slack-proxy &amp;&amp; cd slack-proxy</div>
-      <div class="cmd-line normal">$ npm init -y &amp;&amp; npm install express cors node-fetch</div>
-      <div class="cmd-line comment"># Place proxy.js here, then:</div>
-      <div class="cmd-line normal">$ node proxy.js</div>
-      <div class="setup-ok">✅ Proxy running at http://localhost:3001</div>
-    </div>
+
     <div class="scopes-box">
-      <div class="scopes-title">REQUIRED SCOPES</div>
+      <div class="scopes-title">PERMISSIONS REQUESTED</div>
       <div class="scope-item">· channels:read &nbsp;· channels:history</div>
       <div class="scope-item">· groups:read &nbsp;&nbsp;· groups:history</div>
       <div class="scope-item">· users:read</div>
@@ -306,13 +311,25 @@ let hourCounts = new Array(24).fill(0);
 let heatmap = Array.from({length:7}, () => new Array(24).fill(0));
 
 document.addEventListener('DOMContentLoaded', () => {
-  const inp = document.getElementById('token-input');
-  const btn = document.getElementById('connect-btn');
-  inp.addEventListener('input', () => {
-    btn.className = 'connect-btn ' + (inp.value.trim() ? 'active' : 'inactive');
-  });
-  inp.addEventListener('keydown', e => { if (e.key === 'Enter') doConnect(); });
-  btn.addEventListener('click', doConnect);
+  // Check for OAuth token in URL query param (?token=...)
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('token');
+  const urlError = params.get('error');
+
+  if (urlError) {
+    const el = document.getElementById('connect-error');
+    el.style.display = 'block';
+    el.textContent = '✕ Slack error: ' + urlError;
+  }
+
+  if (urlToken) {
+    // Clean token from URL so it's not visible / bookmarkable
+    window.history.replaceState({}, document.title, '/');
+    token = urlToken;
+    document.getElementById('connect-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    runAnalysis();
+  }
 });
 
 function toggleSetup(btn) {
@@ -323,20 +340,14 @@ function toggleSetup(btn) {
 }
 
 function doConnect() {
-  const t = document.getElementById('token-input').value.trim();
-  if (!t) return;
-  token = t;
-  document.getElementById('connect-screen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  runAnalysis();
+  // OAuth handles login — this is a no-op now
 }
 
 function disconnect() {
   token = '';
   document.getElementById('connect-screen').style.display = 'flex';
   document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('token-input').value = '';
-  document.getElementById('connect-btn').className = 'connect-btn inactive';
+
 }
 
 function setDays(d) {
