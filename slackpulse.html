@@ -112,6 +112,12 @@
     .two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
 
     #empty-msg { text-align:center; color:#4b5563; padding:80px 0; display:none; }
+    .row.emoji-row  { grid-template-columns:28px 40px 120px 1fr 60px; }
+    .row.post-row   { grid-template-columns:1fr; gap:6px; }
+    .post-meta      { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .post-text      { color:#9ca3af; font-size:12px; line-height:1.5; font-family:'Space Mono',monospace; }
+    .post-reactions { color:#FBBF24; font-size:11px; margin-top:2px; }
+    .emoji-big      { font-size:20px; line-height:1; }
   </style>
 </head>
 <body>
@@ -251,6 +257,24 @@
           <button class="export-btn" onclick="exportCSV('replies')">↓ CSV</button>
         </div>
         <div class="rows" id="reply-list"></div>
+      </div>
+
+      <!-- Top Emojis + Most Reacted Posts -->
+      <div class="two-col">
+        <div class="section">
+          <div class="section-title">
+            😂 Top Emojis Used
+            <button class="export-btn" onclick="exportCSV('emojis')">↓ CSV</button>
+          </div>
+          <div class="rows" id="emoji-list"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">
+            🔥 Most Reacted Posts
+            <button class="export-btn" onclick="exportCSV('topposts')">↓ CSV</button>
+          </div>
+          <div id="top-posts-list" class="rows"></div>
+        </div>
       </div>
 
       <!-- Raw Messages Export -->
@@ -399,6 +423,8 @@ async function runAnalysis() {
     const oldest = Math.floor(Date.now() / 1000) - currentDays * 86400;
     const userMsgCount   = {};
     const userReplyCount = {}; // replies received
+    const emojiCount     = {}; // emoji name -> total uses
+    const topPosts       = []; // messages with most reactions
     const chStats = [];
 
     for (let i = 0; i < allChannels.length; i++) {
@@ -425,6 +451,25 @@ async function runAnalysis() {
         // Reply counts — credit the original poster
         if (m.reply_count && m.reply_count > 0 && m.user) {
           userReplyCount[m.user] = (userReplyCount[m.user] || 0) + m.reply_count;
+        }
+
+        // Emoji / reaction tracking
+        if (m.reactions && m.reactions.length > 0) {
+          let totalReactions = 0;
+          m.reactions.forEach(r => {
+            emojiCount[r.name] = (emojiCount[r.name] || 0) + r.count;
+            totalReactions += r.count;
+          });
+          if (totalReactions >= 2) {
+            topPosts.push({
+              channel:    ch.name,
+              user:       memberMap[m.user] || m.user || 'Unknown',
+              text:       (m.text || '').slice(0, 120),
+              reactions:  m.reactions.map(r => `:${r.name}: ×${r.count}`).join('  '),
+              total:      totalReactions,
+              ts:         new Date(parseFloat(m.ts) * 1000).toISOString().slice(0,10)
+            });
+          }
         }
 
         // Raw message store
@@ -455,6 +500,14 @@ async function runAnalysis() {
       .map(([id,count]) => ({ id, name:memberMap[id]||id, messages:count }))
       .sort((a,b) => b.messages - a.messages).slice(0,20);
 
+    // Top emojis
+    window._emojiStats = Object.entries(emojiCount)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a,b) => b.count - a.count).slice(0, 20);
+
+    // Top reacted posts
+    window._topPosts = topPosts.sort((a,b) => b.total - a.total).slice(0, 15);
+
     replyStats = Object.entries(userReplyCount)
       .map(([id,count]) => ({ id, name:memberMap[id]||id, replies:count, msgs: userMsgCount[id]||0 }))
       .sort((a,b) => b.replies - a.replies).slice(0,15);
@@ -478,6 +531,8 @@ async function runAnalysis() {
     renderChannels();
     renderUsers();
     renderReplies();
+    renderEmojis();
+    renderTopPosts();
 
     setLoading(false);
     document.getElementById('results').style.display    = total > 0 ? 'block' : 'none';
@@ -611,6 +666,83 @@ function renderReplies() {
   });
 }
 
+// ── Emoji renderers ──
+
+function renderEmojis() {
+  const stats = window._emojiStats || [];
+  const el    = document.getElementById('emoji-list');
+  const max   = stats[0]?.count || 1;
+  el.innerHTML = '';
+  stats.forEach((e, i) => {
+    const color = COLORS[i % COLORS.length];
+    const pct   = (e.count / max * 100).toFixed(1);
+    // Try to render as native emoji, fall back to :name: text
+    const emojiChar = emojiNameToChar(e.name);
+    const div = document.createElement('div');
+    div.className = 'row emoji-row';
+    div.style.animationDelay = `${i * 0.03}s`;
+    div.innerHTML = `
+      <div class="row-rank">${String(i+1).padStart(2,'0')}</div>
+      <div class="emoji-big">${emojiChar}</div>
+      <div class="row-name" style="font-size:12px">:${e.name}:</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color})"></div></div>
+      <div class="row-count" style="color:${color}">${e.count}</div>`;
+    el.appendChild(div);
+  });
+}
+
+function renderTopPosts() {
+  const posts = window._topPosts || [];
+  const el    = document.getElementById('top-posts-list');
+  el.innerHTML = '';
+  if (!posts.length) {
+    el.innerHTML = '<div style="color:#4b5563;font-size:12px;padding:12px">No reacted posts found in this time window.</div>';
+    return;
+  }
+  posts.forEach((p, i) => {
+    const color = COLORS[i % COLORS.length];
+    const div   = document.createElement('div');
+    div.className = 'row post-row';
+    div.style.animationDelay = `${i * 0.03}s`;
+    div.innerHTML = `
+      <div class="post-meta">
+        <span style="color:${color};font-weight:700;font-size:13px">${p.total} reactions</span>
+        <span style="color:#6b7280;font-size:11px">#${p.channel}</span>
+        <span style="color:#4b5563;font-size:11px">${p.user}</span>
+        <span style="color:#374151;font-size:10px">${p.ts}</span>
+      </div>
+      <div class="post-text">${p.text || '<em style="color:#374151">No text content</em>'}</div>
+      <div class="post-reactions">${p.reactions}</div>`;
+    el.appendChild(div);
+  });
+}
+
+// Map common Slack emoji names to unicode characters
+function emojiNameToChar(name) {
+  const map = {
+    'thumbsup':'👍','thumbsdown':'👎','+1':'👍','-1':'👎',
+    'heart':'❤️','fire':'🔥','laugh':'😂','joy':'😂',
+    'tada':'🎉','party':'🎉','white_check_mark':'✅','check':'✅',
+    'eyes':'👀','raised_hands':'🙌','clap':'👏','pray':'🙏',
+    'muscle':'💪','100':'💯','rocket':'🚀','star':'⭐',
+    'wave':'👋','ok_hand':'👌','point_up':'☝️','thinking_face':'🤔',
+    'face_with_tears_of_joy':'😂','slightly_smiling_face':'🙂',
+    'smile':'😊','grinning':'😁','sweat_smile':'😅','sob':'😭',
+    'skull':'💀','exploding_head':'🤯','mind_blown':'🤯',
+    'sunglasses':'😎','saluting_face':'🫡','fist':'✊',
+    'raised_hand':'✋','v':'✌️','metal':'🤘','sos':'🆘',
+    'warning':'⚠️','no_entry':'⛔','x':'❌','heavy_check_mark':'✔️',
+    'bell':'🔔','mega':'📣','loudspeaker':'📢','speech_balloon':'💬',
+    'information_source':'ℹ️','question':'❓','exclamation':'❗',
+    'trophy':'🏆','medal':'🥇','crown':'👑','gem':'💎',
+    'moneybag':'💰','chart_with_upwards_trend':'📈','bar_chart':'📊',
+    'calendar':'📅','clock1':'🕐','hourglass':'⌛','alarm_clock':'⏰',
+    'coffee':'☕','beers':'🍺','pizza':'🍕','taco':'🌮',
+    'dog':'🐶','cat':'🐱','chicken':'🐔','goat':'🐐',
+  };
+  return map[name] || '🔹';
+}
+
 // ── CSV Export ──
 function toCSV(rows, headers) {
   const esc = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
@@ -641,13 +773,19 @@ function exportCSV(type) {
       `${w}_messages_${d}.csv`);
   } else if (type === 'dow') {
     downloadCSV(toCSV(DAYS.map((day,i)=>({day,messages:dowCounts[i]})),['day','messages']), `${w}_dow_${d}.csv`);
+  } else if (type === 'emojis') {
+    const stats = window._emojiStats || [];
+    downloadCSV(toCSV(stats.map(e=>({emoji:e.name, count:e.count})), ['emoji','count']), `${w}_emojis_${d}.csv`);
+  } else if (type === 'topposts') {
+    const posts = window._topPosts || [];
+    downloadCSV(toCSV(posts, ['total','channel','user','ts','text','reactions']), `${w}_top_posts_${d}.csv`);
   } else if (type === 'hours') {
     downloadCSV(toCSV(hourCounts.map((c,h)=>({hour:h,messages:c})),['hour','messages']), `${w}_hours_${d}.csv`);
   }
 }
 
 function exportAll() {
-  ['channels','users','replies','messages','dow','hours'].forEach((t,i) => {
+  ['channels','users','replies','messages','dow','hours','emojis','topposts'].forEach((t,i) => {
     setTimeout(() => exportCSV(t), i * 500);
   });
 }
