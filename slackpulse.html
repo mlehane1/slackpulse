@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SlackPulse</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; background: #0d1117; color: #f1f5f9; font-family: 'Space Mono', monospace; font-size: 13px; }
+    ::placeholder { color: #374151; }
+    input, button { font-family: 'Space Mono', monospace; }
+    input:focus { outline: none; }
+    button { cursor: pointer; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 3px; }
+    @keyframes spin  { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    @keyframes fadeUp{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── Connect ── */
+    #connect-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .connect-box { width:500px; padding:48px; }
+    .logo-row { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+    .logo-icon { width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,#4ADE80,#60A5FA); display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:0 0 20px #4ADE8055; }
+    .logo-text { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; }
+    .connect-sub { color:#6b7280; font-size:13px; margin-bottom:32px; line-height:1.6; }
+    .field-label { color:#9ca3af; font-size:11px; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+    .token-input { width:100%; padding:14px 16px; background:#161b2e; border:1px solid #2d3748; border-radius:8px; color:#f1f5f9; font-size:14px; margin-bottom:12px; transition:border-color .2s; }
+    .token-input:focus { border-color:#4ADE8066; }
+    .connect-btn { width:100%; padding:14px; border:none; border-radius:8px; font-size:14px; font-weight:700; letter-spacing:1px; transition:all .2s; }
+    .connect-btn.active   { background:linear-gradient(135deg,#4ADE80,#34D399); color:#0d1117; box-shadow:0 0 20px #4ADE8044; }
+    .connect-btn.inactive { background:#1a1f2e; color:#374151; }
+    .error-box { margin-top:16px; color:#F472B6; font-size:12px; padding:12px 14px; background:#F472B611; border:1px solid #F472B633; border-radius:6px; line-height:1.6; display:none; }
+    .setup-toggle { background:none; border:none; color:#4b5563; font-size:11px; margin-top:20px; letter-spacing:1px; padding:0; }
+    .setup-guide  { background:#161b2e; border:1px solid #2d3748; border-radius:12px; padding:24px; margin-top:16px; display:none; }
+    .setup-title  { color:#4ADE80; margin-bottom:12px; font-weight:700; letter-spacing:1px; font-size:12px; }
+    .setup-desc   { color:#6b7280; margin-bottom:12px; line-height:1.6; font-size:12px; }
+    .cmd-line     { background:#0d1117; padding:7px 12px; border-radius:6px; font-size:11px; margin-bottom:4px; }
+    .cmd-line.comment { color:#4b5563; } .cmd-line.normal { color:#f1f5f9; }
+    .setup-ok     { color:#4ADE80; margin-top:12px; font-size:11px; }
+    .scopes-box   { margin-top:24px; padding:16px; background:#161b2e; border-radius:8px; border:1px solid #1e2736; }
+    .scopes-title { color:#6b7280; font-size:11px; margin-bottom:8px; letter-spacing:1px; }
+    .scope-item   { color:#9ca3af; font-size:11px; padding:2px 0; }
+    .privacy-note { margin-top:16px; padding:12px 14px; background:#4ADE8011; border:1px solid #4ADE8033; border-radius:6px; color:#4ADE80; font-size:11px; line-height:1.7; }
+
+    /* ── Dashboard ── */
+    #dashboard { display:none; min-height:100vh; }
+    .topbar { border-bottom:1px solid #1e2736; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:60px; background:#0d1117; position:sticky; top:0; z-index:100; }
+    .topbar-left  { display:flex; align-items:center; gap:12px; }
+    .topbar-logo  { width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#4ADE80,#60A5FA); display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 0 12px #4ADE8044; }
+    .topbar-name  { font-family:'Syne',sans-serif; font-weight:800; font-size:16px; }
+    .topbar-right { display:flex; align-items:center; gap:10px; }
+    .day-btn { padding:4px 10px; border-radius:6px; font-size:11px; transition:all .15s; border:1px solid #1e2736; color:#6b7280; background:transparent; }
+    .day-btn.active { border-color:#4ADE8066; color:#4ADE80; background:#4ADE8011; }
+    .refresh-btn    { padding:6px 14px; border-radius:6px; font-size:11px; background:#161b2e; border:1px solid #2d3748; color:#9ca3af; }
+    .disconnect-btn { background:none; border:none; color:#4b5563; font-size:11px; }
+    .main { padding:32px; }
+
+    /* Loading */
+    #loading { display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:80px 0; }
+    .spinner  { width:40px; height:40px; border:3px solid #1e2736; border-top-color:#4ADE80; border-radius:50%; animation:spin .8s linear infinite; }
+    .loading-text { color:#4ADE80; font-size:12px; animation:pulse 1.5s ease infinite; }
+    #dash-error { color:#F472B6; padding:16px; background:#F472B611; border-radius:8px; border:1px solid #F472B633; margin-bottom:24px; font-size:13px; line-height:1.6; display:none; }
+
+    /* Stat cards */
+    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+    .stat-card  { border-radius:12px; padding:20px 24px; background:linear-gradient(135deg,#161b2e,#1a1f2e); }
+    .stat-label { font-size:11px; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; color:#6b7280; }
+    .stat-value { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; line-height:1; color:#f1f5f9; }
+    .stat-sub   { font-size:11px; margin-top:6px; }
+
+    /* Section */
+    .section       { margin-bottom:32px; }
+    .section-title { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#6b7280; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; }
+    .export-btn    { padding:5px 12px; border-radius:6px; font-size:10px; border:1px solid #4ADE8044; color:#4ADE80; background:#4ADE8011; letter-spacing:1px; transition:all .15s; }
+    .export-btn:hover { background:#4ADE8022; }
+    .export-all-btn { padding:5px 12px; border-radius:6px; font-size:10px; border:1px solid #60A5FA44; color:#60A5FA; background:#60A5FA11; letter-spacing:1px; }
+
+    /* Rows */
+    .rows { display:flex; flex-direction:column; gap:8px; }
+    .row  { background:#161b2e; border:1px solid #1e2736; border-radius:10px; padding:14px 18px; display:grid; align-items:center; gap:14px; animation:fadeUp .4s ease both; }
+    .row.ch-row   { grid-template-columns:24px 180px 1fr 70px 60px; }
+    .row.user-row { grid-template-columns:24px 36px 180px 1fr 70px; }
+    .row.reply-row{ grid-template-columns:24px 36px 180px 1fr 70px 80px; }
+    .row-rank  { color:#4b5563; font-size:11px; font-weight:700; }
+    .row-name  { color:#f1f5f9; font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .row-count { font-size:13px; font-weight:700; text-align:right; }
+    .row-sub   { color:#4b5563; font-size:11px; text-align:right; }
+    .bar-track { background:#1a1f2e; border-radius:4px; height:7px; overflow:hidden; }
+    .bar-fill  { height:100%; border-radius:4px; transition:width .8s cubic-bezier(.16,1,.3,1); }
+    .avatar    { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+
+    /* Heatmap */
+    .heatmap-wrap  { overflow-x:auto; }
+    .heatmap-grid  { display:grid; grid-template-columns:50px repeat(24,1fr); gap:3px; min-width:700px; }
+    .hm-label      { color:#4b5563; font-size:10px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; }
+    .hm-hour-label { color:#4b5563; font-size:9px; text-align:center; padding-bottom:2px; }
+    .hm-cell       { height:28px; border-radius:4px; transition:opacity .3s; cursor:default; position:relative; }
+    .hm-cell:hover::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 4px); left:50%; transform:translateX(-50%); background:#1e2736; color:#f1f5f9; font-size:10px; padding:4px 8px; border-radius:4px; white-space:nowrap; pointer-events:none; z-index:10; border:1px solid #2d3748; }
+
+    /* Day-of-week bars */
+    .dow-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+    .dow-col  { display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .dow-bar-wrap { width:100%; background:#1a1f2e; border-radius:6px; height:80px; display:flex; align-items:flex-end; overflow:hidden; }
+    .dow-bar  { width:100%; border-radius:6px 6px 0 0; transition:height .8s cubic-bezier(.16,1,.3,1); }
+    .dow-label{ color:#6b7280; font-size:11px; }
+    .dow-count{ font-size:11px; font-weight:700; }
+
+    /* Two-col layout */
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+
+    #empty-msg { text-align:center; color:#4b5563; padding:80px 0; display:none; }
+  </style>
+</head>
+<body>
+
+<!-- Connect -->
+<div id="connect-screen">
+  <div class="connect-box">
+    <div class="logo-row">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">SlackPulse</div>
+    </div>
+    <div class="connect-sub">Workspace analytics — activity patterns, top contributors &amp; engagement</div>
+    <div class="field-label">Slack Bot or User Token</div>
+    <input id="token-input" class="token-input" type="password" placeholder="xoxb-... or xoxp-..."/>
+    <button id="connect-btn" class="connect-btn inactive">CONNECT →</button>
+    <div id="connect-error" class="error-box"></div>
+    <div class="privacy-note">
+      🔒 <strong>Privacy:</strong> This app only reads public &amp; private <em>channels</em> using
+      <code>channels:history</code> and <code>groups:history</code> scopes.
+      Direct messages (DMs) are never accessed.
+    </div>
+    <button class="setup-toggle" onclick="toggleSetup(this)">▸ PROXY SETUP INSTRUCTIONS</button>
+    <div class="setup-guide">
+      <div class="setup-title">▸ ONE-TIME SETUP (~2 min)</div>
+      <div class="setup-desc">Slack blocks direct browser requests. Run this local proxy:</div>
+      <div class="cmd-line normal">$ mkdir slack-proxy &amp;&amp; cd slack-proxy</div>
+      <div class="cmd-line normal">$ npm init -y &amp;&amp; npm install express cors node-fetch</div>
+      <div class="cmd-line comment"># Place proxy.js here, then:</div>
+      <div class="cmd-line normal">$ node proxy.js</div>
+      <div class="setup-ok">✅ Proxy running at http://localhost:3001</div>
+    </div>
+    <div class="scopes-box">
+      <div class="scopes-title">REQUIRED SCOPES</div>
+      <div class="scope-item">· channels:read &nbsp;· channels:history</div>
+      <div class="scope-item">· groups:read &nbsp;&nbsp;· groups:history</div>
+      <div class="scope-item">· users:read</div>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">⚡</div>
+      <span class="topbar-name">SlackPulse</span>
+      <span id="workspace-label" style="color:#4ADE80;font-size:11px;margin-left:4px"></span>
+    </div>
+    <div class="topbar-right">
+      <button class="day-btn inactive" data-days="7"  onclick="setDays(7)">7d</button>
+      <button class="day-btn inactive" data-days="14" onclick="setDays(14)">14d</button>
+      <button class="day-btn active"   data-days="30" onclick="setDays(30)">30d</button>
+      <button class="refresh-btn" onclick="runAnalysis()">↻ Refresh</button>
+      <button class="export-all-btn"  onclick="exportAll()">↓ Export All CSVs</button>
+      <button class="disconnect-btn"  onclick="disconnect()">Disconnect</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="loading">
+      <div class="spinner"></div>
+      <div id="loading-text" class="loading-text">Loading…</div>
+    </div>
+    <div id="dash-error"></div>
+
+    <div id="results" style="display:none">
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card" style="border:1px solid #4ADE8033">
+          <div class="stat-label">Total Messages</div>
+          <div id="s-msgs"  class="stat-value">0</div>
+          <div id="s-msgs-sub" class="stat-sub" style="color:#4ADE80"></div>
+        </div>
+        <div class="stat-card" style="border:1px solid #60A5FA33">
+          <div class="stat-label">Active Channels</div>
+          <div id="s-ch"   class="stat-value">0</div>
+          <div id="s-ch-sub" class="stat-sub" style="color:#60A5FA"></div>
+        </div>
+        <div class="stat-card" style="border:1px solid #F472B633">
+          <div class="stat-label">Active Users</div>
+          <div id="s-usr"  class="stat-value">0</div>
+          <div id="s-usr-sub" class="stat-sub" style="color:#F472B6"></div>
+        </div>
+        <div class="stat-card" style="border:1px solid #FBBF2433">
+          <div class="stat-label">Busiest Day</div>
+          <div id="s-day"  class="stat-value" style="font-size:22px">—</div>
+          <div id="s-day-sub" class="stat-sub" style="color:#FBBF24"></div>
+        </div>
+      </div>
+
+      <!-- Day of Week + Hour Heatmap -->
+      <div class="two-col" style="margin-bottom:32px">
+
+        <div class="section">
+          <div class="section-title">📅 Messages by Day of Week</div>
+          <div class="dow-grid" id="dow-chart"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">🕐 Messages by Hour of Day <span style="color:#4b5563;font-size:10px">(workspace local time)</span></div>
+          <div id="hour-chart" style="display:flex;gap:3px;align-items:flex-end;height:80px"></div>
+          <div id="hour-labels" style="display:flex;gap:3px;margin-top:4px"></div>
+        </div>
+      </div>
+
+      <!-- Activity Heatmap (day x hour) -->
+      <div class="section">
+        <div class="section-title">🔥 Activity Heatmap — Day × Hour</div>
+        <div class="heatmap-wrap">
+          <div class="heatmap-grid" id="heatmap"></div>
+        </div>
+      </div>
+
+      <!-- Top Channels + Top Contributors side by side -->
+      <div class="two-col">
+        <div class="section">
+          <div class="section-title">
+            📢 Top Channels
+            <button class="export-btn" onclick="exportCSV('channels')">↓ CSV</button>
+          </div>
+          <div class="rows" id="ch-list"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">
+            🏆 Top Contributors
+            <button class="export-btn" onclick="exportCSV('users')">↓ CSV</button>
+          </div>
+          <div class="rows" id="user-list"></div>
+        </div>
+      </div>
+
+      <!-- Most Replied-To -->
+      <div class="section">
+        <div class="section-title">
+          💬 Most Replied-To Users
+          <button class="export-btn" onclick="exportCSV('replies')">↓ CSV</button>
+        </div>
+        <div class="rows" id="reply-list"></div>
+      </div>
+
+      <!-- Raw Messages Export -->
+      <div class="section">
+        <div class="section-title">
+          📄 Raw Message Data
+          <button class="export-btn" onclick="exportCSV('messages')">↓ Full Messages CSV</button>
+        </div>
+        <div style="color:#4b5563;font-size:12px;padding:12px 16px;background:#161b2e;border-radius:8px;border:1px solid #1e2736">
+          Export includes: timestamp, channel, user, message text, thread info, reply count &amp; reactions.
+        </div>
+      </div>
+
+    </div><!-- /results -->
+    <div id="empty-msg">No messages found in the selected time window.</div>
+  </div>
+</div>
+
+<script>
+const PROXY = 'http://localhost:3001/api';
+const COLORS = ['#4ADE80','#60A5FA','#F472B6','#FBBF24','#A78BFA','#34D399','#FB923C','#38BDF8','#E879F9','#FCD34D'];
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+let token = '', currentDays = 30;
+let allChannels = [], allMembers = [], channelStats = [], userStats = [], replyStats = [];
+let rawMessages = [];
+let dowCounts = new Array(7).fill(0);
+let hourCounts = new Array(24).fill(0);
+let heatmap = Array.from({length:7}, () => new Array(24).fill(0));
+
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('token-input');
+  const btn = document.getElementById('connect-btn');
+  inp.addEventListener('input', () => {
+    btn.className = 'connect-btn ' + (inp.value.trim() ? 'active' : 'inactive');
+  });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') doConnect(); });
+  btn.addEventListener('click', doConnect);
+});
+
+function toggleSetup(btn) {
+  const guide = btn.nextElementSibling;
+  const open  = guide.style.display === 'block';
+  guide.style.display = open ? 'none' : 'block';
+  btn.textContent = (open ? '▸' : '▾') + ' PROXY SETUP INSTRUCTIONS';
+}
+
+function doConnect() {
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) return;
+  token = t;
+  document.getElementById('connect-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  runAnalysis();
+}
+
+function disconnect() {
+  token = '';
+  document.getElementById('connect-screen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('token-input').value = '';
+  document.getElementById('connect-btn').className = 'connect-btn inactive';
+}
+
+function setDays(d) {
+  currentDays = d;
+  document.querySelectorAll('.day-btn').forEach(b => {
+    b.className = 'day-btn ' + (parseInt(b.dataset.days) === d ? 'active' : 'inactive');
+  });
+  runAnalysis();
+}
+
+function setLoading(on, text='') {
+  document.getElementById('loading').style.display = on ? 'flex' : 'none';
+  document.getElementById('loading-text').textContent = text;
+  if (on) document.getElementById('results').style.display = 'none';
+}
+
+function showDashError(msg) {
+  const el = document.getElementById('dash-error');
+  el.style.display = msg ? 'block' : 'none';
+  el.innerHTML = msg ? `✕ ${msg}` : '';
+}
+
+async function slackGet(method, params={}) {
+  const url = new URL(`${PROXY}/${method}`);
+  url.searchParams.set('token', token);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, String(v)));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`Proxy error HTTP ${res.status} — is proxy.js running?`);
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || 'Slack API error');
+  return data;
+}
+
+async function fetchAllChannels() {
+  let channels = [], cursor = '';
+  do {
+    const p = { limit:200, exclude_archived:true, types:'public_channel,private_channel' };
+    if (cursor) p.cursor = cursor;
+    const d = await slackGet('conversations.list', p);
+    channels = channels.concat(d.channels);
+    cursor = d.response_metadata?.next_cursor || '';
+  } while (cursor);
+  return channels;
+}
+
+async function fetchAllMembers() {
+  let members = [], cursor = '';
+  do {
+    const p = { limit:200 };
+    if (cursor) p.cursor = cursor;
+    const d = await slackGet('users.list', p);
+    members = members.concat(d.members.filter(m => !m.deleted && !m.is_bot && m.id !== 'USLACKBOT'));
+    cursor = d.response_metadata?.next_cursor || '';
+  } while (cursor);
+  return members;
+}
+
+async function fetchChannelHistory(channelId, oldest) {
+  try {
+    const d = await slackGet('conversations.history', { channel:channelId, oldest:String(oldest), limit:200 });
+    return d.messages || [];
+  } catch { return []; }
+}
+
+async function runAnalysis() {
+  setLoading(true, 'Verifying token…');
+  showDashError('');
+  channelStats=[]; userStats=[]; replyStats=[]; rawMessages=[];
+  dowCounts = new Array(7).fill(0);
+  hourCounts = new Array(24).fill(0);
+  heatmap = Array.from({length:7}, () => new Array(24).fill(0));
+
+  try {
+    const auth = await slackGet('auth.test');
+    document.getElementById('workspace-label').textContent = '· ' + (auth.team || 'Workspace');
+
+    setLoading(true, 'Fetching channels…');
+    allChannels = await fetchAllChannels();
+
+    setLoading(true, 'Fetching members…');
+    allMembers = await fetchAllMembers();
+    const memberMap = Object.fromEntries(allMembers.map(m => [m.id, m.real_name || m.name || m.id]));
+
+    const oldest = Math.floor(Date.now() / 1000) - currentDays * 86400;
+    const userMsgCount   = {};
+    const userReplyCount = {}; // replies received
+    const chStats = [];
+
+    for (let i = 0; i < allChannels.length; i++) {
+      const ch = allChannels[i];
+      setLoading(true, `Scanning ${i+1}/${allChannels.length}: #${ch.name}`);
+      const msgs = await fetchChannelHistory(ch.id, oldest);
+      let msgCount = 0;
+
+      msgs.forEach(m => {
+        if (m.type !== 'message' || m.subtype) return;
+        msgCount++;
+
+        // Day / hour breakdown
+        const d = new Date(parseFloat(m.ts) * 1000);
+        const dow  = d.getDay();
+        const hour = d.getHours();
+        dowCounts[dow]++;
+        hourCounts[hour]++;
+        heatmap[dow][hour]++;
+
+        // User message counts
+        if (m.user) userMsgCount[m.user] = (userMsgCount[m.user] || 0) + 1;
+
+        // Reply counts — credit the original poster
+        if (m.reply_count && m.reply_count > 0 && m.user) {
+          userReplyCount[m.user] = (userReplyCount[m.user] || 0) + m.reply_count;
+        }
+
+        // Raw message store
+        rawMessages.push({
+          channel:    ch.name,
+          channel_id: ch.id,
+          user_id:    m.user || '',
+          user_name:  memberMap[m.user] || m.user || '',
+          timestamp:  new Date(parseFloat(m.ts) * 1000).toISOString(),
+          text:       (m.text || '').replace(/[\r\n]+/g, ' ').replace(/"/g, '""'),
+          thread_ts:  m.thread_ts || '',
+          reply_count:m.reply_count || 0,
+          reactions:  m.reactions ? m.reactions.map(r => r.name).join('|') : ''
+        });
+      });
+
+      if (msgCount > 0)
+        chStats.push({ id:ch.id, name:ch.name, messages:msgCount, memberCount:ch.num_members||0 });
+
+      await new Promise(r => setTimeout(r, 120));
+    }
+
+    chStats.sort((a,b) => b.messages - a.messages);
+    channelStats = chStats;
+    const total = chStats.reduce((s,c) => s + c.messages, 0);
+
+    userStats = Object.entries(userMsgCount)
+      .map(([id,count]) => ({ id, name:memberMap[id]||id, messages:count }))
+      .sort((a,b) => b.messages - a.messages).slice(0,20);
+
+    replyStats = Object.entries(userReplyCount)
+      .map(([id,count]) => ({ id, name:memberMap[id]||id, replies:count, msgs: userMsgCount[id]||0 }))
+      .sort((a,b) => b.replies - a.replies).slice(0,15);
+
+    // Busiest day
+    const maxDow = dowCounts.indexOf(Math.max(...dowCounts));
+
+    // Update stat cards
+    document.getElementById('s-msgs').textContent     = total.toLocaleString();
+    document.getElementById('s-msgs-sub').textContent = `Last ${currentDays} days`;
+    document.getElementById('s-ch').textContent       = chStats.length;
+    document.getElementById('s-ch-sub').textContent   = `of ${allChannels.length} total`;
+    document.getElementById('s-usr').textContent      = userStats.length;
+    document.getElementById('s-usr-sub').textContent  = `of ${allMembers.length} members`;
+    document.getElementById('s-day').textContent      = DAYS[maxDow].slice(0,3);
+    document.getElementById('s-day-sub').textContent  = `${dowCounts[maxDow].toLocaleString()} messages`;
+
+    renderDow();
+    renderHours();
+    renderHeatmap();
+    renderChannels();
+    renderUsers();
+    renderReplies();
+
+    setLoading(false);
+    document.getElementById('results').style.display    = total > 0 ? 'block' : 'none';
+    document.getElementById('empty-msg').style.display  = total === 0 ? 'block' : 'none';
+
+  } catch(e) {
+    setLoading(false);
+    showDashError(e.message);
+  }
+}
+
+// ── Renderers ──
+
+function renderDow() {
+  const max = Math.max(...dowCounts, 1);
+  const el  = document.getElementById('dow-chart');
+  el.innerHTML = '';
+  DAYS.forEach((day, i) => {
+    const pct   = (dowCounts[i] / max * 100).toFixed(1);
+    const color = COLORS[i % COLORS.length];
+    el.innerHTML += `
+      <div class="dow-col">
+        <div class="dow-bar-wrap">
+          <div class="dow-bar" style="height:${pct}%;background:linear-gradient(0deg,${color}99,${color});box-shadow:0 0 8px ${color}55"></div>
+        </div>
+        <div class="dow-label">${day.slice(0,3)}</div>
+        <div class="dow-count" style="color:${color}">${dowCounts[i].toLocaleString()}</div>
+      </div>`;
+  });
+}
+
+function renderHours() {
+  const max    = Math.max(...hourCounts, 1);
+  const chart  = document.getElementById('hour-chart');
+  const labels = document.getElementById('hour-labels');
+  chart.innerHTML = ''; labels.innerHTML = '';
+  hourCounts.forEach((count, h) => {
+    const pct   = (count / max * 100).toFixed(1);
+    const color = count === max ? '#4ADE80' : '#60A5FA';
+    const label = h === 0 ? '12a' : h < 12 ? `${h}a` : h === 12 ? '12p' : `${h-12}p`;
+    chart.innerHTML  += `<div style="flex:1;height:${pct}%;background:linear-gradient(0deg,${color}88,${color});border-radius:3px 3px 0 0;min-height:2px" title="${count} msgs at ${label}"></div>`;
+    labels.innerHTML += `<div style="flex:1;text-align:center;color:#374151;font-size:8px">${h%3===0?label:''}</div>`;
+  });
+}
+
+function renderHeatmap() {
+  const flat = heatmap.flat();
+  const max  = Math.max(...flat, 1);
+  const el   = document.getElementById('heatmap');
+  el.innerHTML = '';
+
+  // Hour headers
+  el.innerHTML += '<div></div>';
+  for (let h = 0; h < 24; h++) {
+    const label = h === 0 ? '12a' : h < 12 ? `${h}a` : h === 12 ? '12p' : `${h-12}p`;
+    el.innerHTML += `<div class="hm-hour-label">${h%3===0?label:''}</div>`;
+  }
+
+  DAYS.forEach((day, d) => {
+    el.innerHTML += `<div class="hm-label">${day.slice(0,3)}</div>`;
+    for (let h = 0; h < 24; h++) {
+      const val    = heatmap[d][h];
+      const alpha  = val === 0 ? 0.05 : 0.15 + (val / max) * 0.85;
+      const color  = val === 0 ? '#1e2736' : `rgba(74,222,128,${alpha.toFixed(2)})`;
+      const tip    = `${day} ${h}:00 — ${val} msg${val!==1?'s':''}`;
+      el.innerHTML += `<div class="hm-cell" style="background:${color}" data-tip="${tip}"></div>`;
+    }
+  });
+}
+
+function renderChannels() {
+  const el  = document.getElementById('ch-list');
+  const max = channelStats[0]?.messages || 1;
+  el.innerHTML = '';
+  channelStats.slice(0,15).forEach((ch, i) => {
+    const color = COLORS[i % COLORS.length];
+    const pct   = (ch.messages / max * 100).toFixed(1);
+    const div   = document.createElement('div');
+    div.className = 'row ch-row';
+    div.style.animationDelay = `${i * 0.03}s`;
+    div.innerHTML = `
+      <div class="row-rank">${String(i+1).padStart(2,'0')}</div>
+      <div class="row-name"><span style="color:#4b5563">#</span>${ch.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color});box-shadow:0 0 6px ${color}55"></div></div>
+      <div class="row-count" style="color:${color}">${ch.messages.toLocaleString()}</div>
+      <div class="row-sub">${ch.memberCount} 👤</div>`;
+    el.appendChild(div);
+  });
+}
+
+function renderUsers() {
+  const el  = document.getElementById('user-list');
+  const max = userStats[0]?.messages || 1;
+  el.innerHTML = '';
+  userStats.forEach((u, i) => {
+    const color  = COLORS[i % COLORS.length];
+    const color2 = COLORS[(i+3) % COLORS.length];
+    const pct    = (u.messages / max * 100).toFixed(1);
+    const div    = document.createElement('div');
+    div.className = 'row user-row';
+    div.style.animationDelay = `${i * 0.03}s`;
+    div.innerHTML = `
+      <div class="row-rank">${String(i+1).padStart(2,'0')}</div>
+      <div class="avatar" style="background:linear-gradient(135deg,${color}33,${color2}33);border:1.5px solid ${color}66;color:${color}">${u.name.charAt(0).toUpperCase()}</div>
+      <div class="row-name">${u.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color});box-shadow:0 0 6px ${color}55"></div></div>
+      <div class="row-count" style="color:${color}">${u.messages.toLocaleString()}</div>`;
+    el.appendChild(div);
+  });
+}
+
+function renderReplies() {
+  const el  = document.getElementById('reply-list');
+  const max = replyStats[0]?.replies || 1;
+  el.innerHTML = '';
+  replyStats.forEach((u, i) => {
+    const color  = COLORS[i % COLORS.length];
+    const color2 = COLORS[(i+4) % COLORS.length];
+    const pct    = (u.replies / max * 100).toFixed(1);
+    const div    = document.createElement('div');
+    div.className = 'row reply-row';
+    div.style.animationDelay = `${i * 0.03}s`;
+    div.innerHTML = `
+      <div class="row-rank">${String(i+1).padStart(2,'0')}</div>
+      <div class="avatar" style="background:linear-gradient(135deg,${color}33,${color2}33);border:1.5px solid ${color}66;color:${color}">${u.name.charAt(0).toUpperCase()}</div>
+      <div class="row-name">${u.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color});box-shadow:0 0 6px ${color}55"></div></div>
+      <div class="row-count" style="color:${color}">${u.replies.toLocaleString()} replies</div>
+      <div class="row-sub">${u.msgs} sent</div>`;
+    el.appendChild(div);
+  });
+}
+
+// ── CSV Export ──
+function toCSV(rows, headers) {
+  const esc = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  return [headers.join(','), ...rows.map(r => headers.map(h => esc(r[h])).join(','))].join('\n');
+}
+function downloadCSV(csv, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+  a.download = filename; a.click();
+}
+function dateStr() { return new Date().toISOString().slice(0,10); }
+function wsName()  { return (document.getElementById('workspace-label').textContent||'slack').replace('· ','').trim(); }
+
+function exportCSV(type) {
+  const d = dateStr(), w = wsName();
+  if (type === 'channels') {
+    downloadCSV(toCSV(channelStats.map(c=>({channel:c.name,channel_id:c.id,messages:c.messages,members:c.memberCount})),
+      ['channel','channel_id','messages','members']), `${w}_channels_${d}.csv`);
+  } else if (type === 'users') {
+    downloadCSV(toCSV(userStats.map(u=>({user:u.name,user_id:u.id,messages:u.messages})),
+      ['user','user_id','messages']), `${w}_users_${d}.csv`);
+  } else if (type === 'replies') {
+    downloadCSV(toCSV(replyStats.map(u=>({user:u.name,user_id:u.id,replies_received:u.replies,messages_sent:u.msgs})),
+      ['user','user_id','replies_received','messages_sent']), `${w}_replies_${d}.csv`);
+  } else if (type === 'messages') {
+    if (!rawMessages.length) return alert('No messages loaded.');
+    downloadCSV(toCSV(rawMessages, ['timestamp','channel','user_name','user_id','text','thread_ts','reply_count','reactions']),
+      `${w}_messages_${d}.csv`);
+  } else if (type === 'dow') {
+    downloadCSV(toCSV(DAYS.map((day,i)=>({day,messages:dowCounts[i]})),['day','messages']), `${w}_dow_${d}.csv`);
+  } else if (type === 'hours') {
+    downloadCSV(toCSV(hourCounts.map((c,h)=>({hour:h,messages:c})),['hour','messages']), `${w}_hours_${d}.csv`);
+  }
+}
+
+function exportAll() {
+  ['channels','users','replies','messages','dow','hours'].forEach((t,i) => {
+    setTimeout(() => exportCSV(t), i * 500);
+  });
+}
+</script>
+</body>
+</html>
