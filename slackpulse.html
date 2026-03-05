@@ -9,54 +9,45 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { min-height: 100%; background: #0d1117; color: #f1f5f9; font-family: 'Space Mono', monospace; font-size: 13px; }
     ::placeholder { color: #374151; }
-    input, button { font-family: 'Space Mono', monospace; }
-    input:focus { outline: none; }
+    input, button, select { font-family: 'Space Mono', monospace; }
+    input:focus, select:focus { outline: none; }
     button { cursor: pointer; }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #0d1117; }
     ::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 3px; }
-    @keyframes spin  { to { transform: rotate(360deg); } }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    @keyframes fadeUp{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin   { to { transform: rotate(360deg); } }
+    @keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes slideIn{ from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
     /* ── Connect ── */
     #connect-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; }
     .connect-box { width:500px; padding:48px; }
-    .logo-row { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+    .logo-row  { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
     .logo-icon { width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,#4ADE80,#60A5FA); display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:0 0 20px #4ADE8055; }
     .logo-text { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; }
     .connect-sub { color:#6b7280; font-size:13px; margin-bottom:32px; line-height:1.6; }
-    .field-label { color:#9ca3af; font-size:11px; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
-    .token-input { width:100%; padding:14px 16px; background:#161b2e; border:1px solid #2d3748; border-radius:8px; color:#f1f5f9; font-size:14px; margin-bottom:12px; transition:border-color .2s; }
-    .token-input:focus { border-color:#4ADE8066; }
-    .connect-btn { width:100%; padding:14px; border:none; border-radius:8px; font-size:14px; font-weight:700; letter-spacing:1px; transition:all .2s; }
-    .connect-btn.active   { background:linear-gradient(135deg,#4ADE80,#34D399); color:#0d1117; box-shadow:0 0 20px #4ADE8044; }
-    .connect-btn.inactive { background:#1a1f2e; color:#374151; }
     .error-box { margin-top:16px; color:#F472B6; font-size:12px; padding:12px 14px; background:#F472B611; border:1px solid #F472B633; border-radius:6px; line-height:1.6; display:none; }
-    .setup-toggle { background:none; border:none; color:#4b5563; font-size:11px; margin-top:20px; letter-spacing:1px; padding:0; }
-    .setup-guide  { background:#161b2e; border:1px solid #2d3748; border-radius:12px; padding:24px; margin-top:16px; display:none; }
-    .setup-title  { color:#4ADE80; margin-bottom:12px; font-weight:700; letter-spacing:1px; font-size:12px; }
-    .setup-desc   { color:#6b7280; margin-bottom:12px; line-height:1.6; font-size:12px; }
-    .cmd-line     { background:#0d1117; padding:7px 12px; border-radius:6px; font-size:11px; margin-bottom:4px; }
-    .cmd-line.comment { color:#4b5563; } .cmd-line.normal { color:#f1f5f9; }
-    .setup-ok     { color:#4ADE80; margin-top:12px; font-size:11px; }
+    .privacy-note { margin-top:16px; padding:12px 14px; background:#4ADE8011; border:1px solid #4ADE8033; border-radius:6px; color:#4ADE80; font-size:11px; line-height:1.7; }
     .scopes-box   { margin-top:24px; padding:16px; background:#161b2e; border-radius:8px; border:1px solid #1e2736; }
     .scopes-title { color:#6b7280; font-size:11px; margin-bottom:8px; letter-spacing:1px; }
     .scope-item   { color:#9ca3af; font-size:11px; padding:2px 0; }
-    .privacy-note { margin-top:16px; padding:12px 14px; background:#4ADE8011; border:1px solid #4ADE8033; border-radius:6px; color:#4ADE80; font-size:11px; line-height:1.7; }
 
     /* ── Dashboard ── */
     #dashboard { display:none; min-height:100vh; }
-    .topbar { border-bottom:1px solid #1e2736; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:60px; background:#0d1117; position:sticky; top:0; z-index:100; }
+    .topbar { border-bottom:1px solid #1e2736; padding:0 24px; display:flex; align-items:center; justify-content:space-between; height:60px; background:#0d1117; position:sticky; top:0; z-index:100; }
     .topbar-left  { display:flex; align-items:center; gap:12px; }
     .topbar-logo  { width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#4ADE80,#60A5FA); display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 0 12px #4ADE8044; }
     .topbar-name  { font-family:'Syne',sans-serif; font-weight:800; font-size:16px; }
-    .topbar-right { display:flex; align-items:center; gap:10px; }
+    .topbar-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .day-btn { padding:4px 10px; border-radius:6px; font-size:11px; transition:all .15s; border:1px solid #1e2736; color:#6b7280; background:transparent; }
     .day-btn.active { border-color:#4ADE8066; color:#4ADE80; background:#4ADE8011; }
-    .refresh-btn    { padding:6px 14px; border-radius:6px; font-size:11px; background:#161b2e; border:1px solid #2d3748; color:#9ca3af; }
-    .disconnect-btn { background:none; border:none; color:#4b5563; font-size:11px; }
-    .main { padding:32px; }
+    .refresh-btn     { padding:6px 12px; border-radius:6px; font-size:11px; background:#161b2e; border:1px solid #2d3748; color:#9ca3af; }
+    .filter-btn      { padding:6px 12px; border-radius:6px; font-size:11px; background:#FBBF2411; border:1px solid #FBBF2444; color:#FBBF24; }
+    .filter-btn.has-filter { background:#FBBF2422; border-color:#FBBF2488; }
+    .export-all-btn  { padding:6px 12px; border-radius:6px; font-size:10px; border:1px solid #60A5FA44; color:#60A5FA; background:#60A5FA11; letter-spacing:1px; }
+    .disconnect-btn  { background:none; border:none; color:#4b5563; font-size:11px; }
+    .main { padding:24px 32px; }
 
     /* Loading */
     #loading { display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:80px 0; }
@@ -76,14 +67,16 @@
     .section-title { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#6b7280; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; }
     .export-btn    { padding:5px 12px; border-radius:6px; font-size:10px; border:1px solid #4ADE8044; color:#4ADE80; background:#4ADE8011; letter-spacing:1px; transition:all .15s; }
     .export-btn:hover { background:#4ADE8022; }
-    .export-all-btn { padding:5px 12px; border-radius:6px; font-size:10px; border:1px solid #60A5FA44; color:#60A5FA; background:#60A5FA11; letter-spacing:1px; }
 
     /* Rows */
     .rows { display:flex; flex-direction:column; gap:8px; }
     .row  { background:#161b2e; border:1px solid #1e2736; border-radius:10px; padding:14px 18px; display:grid; align-items:center; gap:14px; animation:fadeUp .4s ease both; }
-    .row.ch-row   { grid-template-columns:24px 180px 1fr 70px 60px; }
-    .row.user-row { grid-template-columns:24px 36px 180px 1fr 70px; }
-    .row.reply-row{ grid-template-columns:24px 36px 180px 1fr 70px 80px; }
+    .row.ch-row    { grid-template-columns:24px 180px 1fr 70px 60px; }
+    .row.user-row  { grid-template-columns:24px 36px 1fr 1fr 70px; cursor:pointer; transition:border-color .2s, background .2s; }
+    .row.user-row:hover { border-color:#4ADE8055; background:#1a2038; }
+    .row.reply-row { grid-template-columns:24px 36px 180px 1fr 70px 80px; }
+    .row.emoji-row { grid-template-columns:28px 40px 120px 1fr 60px; }
+    .row.post-row  { grid-template-columns:1fr; gap:6px; }
     .row-rank  { color:#4b5563; font-size:11px; font-weight:700; }
     .row-name  { color:#f1f5f9; font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .row-count { font-size:13px; font-weight:700; text-align:right; }
@@ -91,16 +84,17 @@
     .bar-track { background:#1a1f2e; border-radius:4px; height:7px; overflow:hidden; }
     .bar-fill  { height:100%; border-radius:4px; transition:width .8s cubic-bezier(.16,1,.3,1); }
     .avatar    { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+    .click-hint { color:#4b5563; font-size:10px; }
 
     /* Heatmap */
     .heatmap-wrap  { overflow-x:auto; }
     .heatmap-grid  { display:grid; grid-template-columns:50px repeat(24,1fr); gap:3px; min-width:700px; }
     .hm-label      { color:#4b5563; font-size:10px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; }
     .hm-hour-label { color:#4b5563; font-size:9px; text-align:center; padding-bottom:2px; }
-    .hm-cell       { height:28px; border-radius:4px; transition:opacity .3s; cursor:default; position:relative; }
+    .hm-cell       { height:28px; border-radius:4px; cursor:default; position:relative; }
     .hm-cell:hover::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 4px); left:50%; transform:translateX(-50%); background:#1e2736; color:#f1f5f9; font-size:10px; padding:4px 8px; border-radius:4px; white-space:nowrap; pointer-events:none; z-index:10; border:1px solid #2d3748; }
 
-    /* Day-of-week bars */
+    /* Day-of-week */
     .dow-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
     .dow-col  { display:flex; flex-direction:column; align-items:center; gap:6px; }
     .dow-bar-wrap { width:100%; background:#1a1f2e; border-radius:6px; height:80px; display:flex; align-items:flex-end; overflow:hidden; }
@@ -108,16 +102,81 @@
     .dow-label{ color:#6b7280; font-size:11px; }
     .dow-count{ font-size:11px; font-weight:700; }
 
-    /* Two-col layout */
+    /* Two-col */
     .two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
 
-    #empty-msg { text-align:center; color:#4b5563; padding:80px 0; display:none; }
-    .row.emoji-row  { grid-template-columns:28px 40px 120px 1fr 60px; }
-    .row.post-row   { grid-template-columns:1fr; gap:6px; }
+    /* Post items */
     .post-meta      { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-    .post-text      { color:#9ca3af; font-size:12px; line-height:1.5; font-family:'Space Mono',monospace; }
+    .post-text      { color:#9ca3af; font-size:12px; line-height:1.5; }
     .post-reactions { color:#FBBF24; font-size:11px; margin-top:2px; }
     .emoji-big      { font-size:20px; line-height:1; }
+
+    #empty-msg { text-align:center; color:#4b5563; padding:80px 0; display:none; }
+
+    /* ── Channel Filter Panel ── */
+    #filter-panel {
+      display:none; position:fixed; top:60px; right:0; bottom:0; width:320px;
+      background:#0f1420; border-left:1px solid #1e2736; z-index:200;
+      flex-direction:column; animation:slideIn .2s ease;
+    }
+    #filter-panel.open { display:flex; }
+    .filter-header { padding:20px 20px 12px; border-bottom:1px solid #1e2736; display:flex; align-items:center; justify-content:space-between; }
+    .filter-title  { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#9ca3af; }
+    .filter-close  { background:none; border:none; color:#4b5563; font-size:18px; line-height:1; }
+    .filter-actions { padding:12px 20px; display:flex; gap:8px; border-bottom:1px solid #1e2736; }
+    .filter-action-btn { padding:5px 12px; border-radius:6px; font-size:10px; border:1px solid #2d3748; color:#9ca3af; background:transparent; letter-spacing:1px; }
+    .filter-search { padding:10px 20px; border-bottom:1px solid #1e2736; }
+    .filter-search input { width:100%; background:#161b2e; border:1px solid #2d3748; border-radius:6px; padding:8px 12px; color:#f1f5f9; font-size:12px; }
+    .filter-list   { flex:1; overflow-y:auto; padding:8px 0; }
+    .filter-item   { display:flex; align-items:center; gap:10px; padding:8px 20px; cursor:pointer; transition:background .15s; }
+    .filter-item:hover { background:#161b2e; }
+    .filter-item input[type=checkbox] { accent-color:#4ADE80; width:14px; height:14px; cursor:pointer; }
+    .filter-item-name  { color:#f1f5f9; font-size:12px; flex:1; }
+    .filter-item-count { color:#4b5563; font-size:11px; }
+    .filter-apply { padding:16px 20px; border-top:1px solid #1e2736; }
+    .filter-apply-btn { width:100%; padding:12px; background:linear-gradient(135deg,#4ADE80,#34D399); border:none; border-radius:8px; color:#0d1117; font-size:13px; font-weight:700; letter-spacing:1px; }
+
+    /* ── User Drill-Down Modal ── */
+    #user-modal {
+      display:none; position:fixed; inset:0; z-index:300;
+      background:#0d111799; backdrop-filter:blur(4px);
+      align-items:center; justify-content:center;
+    }
+    #user-modal.open { display:flex; }
+    .modal-box {
+      background:#0f1420; border:1px solid #1e2736; border-radius:16px;
+      width:720px; max-width:95vw; max-height:85vh;
+      display:flex; flex-direction:column; animation:slideIn .25s ease;
+      box-shadow:0 0 60px #00000088;
+    }
+    .modal-header { padding:24px 28px 16px; border-bottom:1px solid #1e2736; display:flex; align-items:center; justify-content:space-between; }
+    .modal-user-info { display:flex; align-items:center; gap:14px; }
+    .modal-avatar { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; flex-shrink:0; }
+    .modal-name   { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; }
+    .modal-stats  { color:#6b7280; font-size:12px; margin-top:2px; }
+    .modal-close  { background:none; border:none; color:#4b5563; font-size:24px; line-height:1; padding:4px; }
+    .modal-close:hover { color:#9ca3af; }
+    .modal-body   { flex:1; overflow-y:auto; padding:20px 28px; }
+    .modal-section-title { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#6b7280; margin-bottom:12px; margin-top:20px; }
+    .modal-section-title:first-child { margin-top:0; }
+
+    /* User activity breakdown inside modal */
+    .user-ch-grid { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+    .user-ch-row  { display:grid; grid-template-columns:160px 1fr 50px; gap:10px; align-items:center; }
+    .user-ch-name { color:#9ca3af; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .user-ch-name span { color:#4b5563; }
+
+    /* Message list in modal */
+    .msg-list { display:flex; flex-direction:column; gap:8px; }
+    .msg-item { background:#161b2e; border:1px solid #1e2736; border-radius:8px; padding:12px 16px; }
+    .msg-meta { display:flex; gap:10px; margin-bottom:6px; align-items:center; }
+    .msg-channel { color:#4ADE80; font-size:11px; }
+    .msg-date    { color:#374151; font-size:10px; }
+    .msg-replies { color:#FBBF24; font-size:10px; }
+    .msg-text    { color:#9ca3af; font-size:12px; line-height:1.6; word-break:break-word; }
+    .msg-reactions { color:#6b7280; font-size:11px; margin-top:6px; }
+
+    .modal-loading { display:flex; align-items:center; gap:12px; padding:40px 0; justify-content:center; color:#4ADE80; font-size:12px; }
   </style>
 </head>
 <body>
@@ -130,13 +189,8 @@
       <div class="logo-text">SlackPulse</div>
     </div>
     <div class="connect-sub">Workspace analytics — activity patterns, top contributors &amp; engagement</div>
-    <!-- Sign in with Slack -->
-    <a id="slack-oauth-btn" href="/auth/login" style="
-      display:flex; align-items:center; justify-content:center; gap:12px;
-      background:#4A154B; color:#fff; border-radius:8px; padding:14px 24px;
-      font-size:15px; font-weight:700; text-decoration:none; letter-spacing:0.3px;
-      box-shadow:0 0 24px #4A154B88; transition:all .2s; margin-bottom:16px;
-      font-family:'Space Mono',monospace;">
+
+    <a href="/auth/login" style="display:flex;align-items:center;justify-content:center;gap:12px;background:#4A154B;color:#fff;border-radius:8px;padding:14px 24px;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 0 24px #4A154B88;margin-bottom:16px;font-family:'Space Mono',monospace">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 122.8 122.8">
         <path d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zm6.5 0c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z" fill="#E01E5A"/>
         <path d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zm0 6.5c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z" fill="#36C5F0"/>
@@ -147,18 +201,10 @@
     </a>
 
     <div id="connect-error" class="error-box"></div>
-
-    <div class="privacy-note">
-      🔒 <strong>Privacy:</strong> Only reads public &amp; private <em>channels</em>.
-      Direct messages (DMs) are <strong>never</strong> accessed.
-      Your token is never stored on the server.
-    </div>
-
+    <div class="privacy-note">🔒 Only reads channel messages. DMs are <strong>never</strong> accessed. Your token is never stored.</div>
     <div class="scopes-box">
       <div class="scopes-title">PERMISSIONS REQUESTED</div>
-      <div class="scope-item">· channels:read &nbsp;· channels:history</div>
-      <div class="scope-item">· groups:read &nbsp;&nbsp;· groups:history</div>
-      <div class="scope-item">· users:read</div>
+      <div class="scope-item">· channels:read &nbsp;· channels:history · groups:read &nbsp;· groups:history · users:read</div>
     </div>
   </div>
 </div>
@@ -175,155 +221,162 @@
       <button class="day-btn inactive" data-days="7"  onclick="setDays(7)">7d</button>
       <button class="day-btn inactive" data-days="14" onclick="setDays(14)">14d</button>
       <button class="day-btn active"   data-days="30" onclick="setDays(30)">30d</button>
+      <button class="filter-btn" id="filter-toggle-btn" onclick="toggleFilterPanel()">⚙ Channels</button>
       <button class="refresh-btn" onclick="runAnalysis()">↻ Refresh</button>
-      <button class="export-all-btn"  onclick="exportAll()">↓ Export All CSVs</button>
-      <button class="disconnect-btn"  onclick="disconnect()">Disconnect</button>
+      <button class="export-all-btn" onclick="exportAll()">↓ Export All</button>
+      <button class="disconnect-btn" onclick="disconnect()">Disconnect</button>
     </div>
   </div>
 
   <div class="main">
-    <div id="loading">
-      <div class="spinner"></div>
-      <div id="loading-text" class="loading-text">Loading…</div>
-    </div>
+    <div id="loading"><div class="spinner"></div><div id="loading-text" class="loading-text">Loading…</div></div>
     <div id="dash-error"></div>
 
     <div id="results" style="display:none">
-
-      <!-- Stat Cards -->
+      <!-- Stats -->
       <div class="stats-grid">
         <div class="stat-card" style="border:1px solid #4ADE8033">
           <div class="stat-label">Total Messages</div>
-          <div id="s-msgs"  class="stat-value">0</div>
+          <div id="s-msgs" class="stat-value">0</div>
           <div id="s-msgs-sub" class="stat-sub" style="color:#4ADE80"></div>
         </div>
         <div class="stat-card" style="border:1px solid #60A5FA33">
           <div class="stat-label">Active Channels</div>
-          <div id="s-ch"   class="stat-value">0</div>
+          <div id="s-ch" class="stat-value">0</div>
           <div id="s-ch-sub" class="stat-sub" style="color:#60A5FA"></div>
         </div>
         <div class="stat-card" style="border:1px solid #F472B633">
           <div class="stat-label">Active Users</div>
-          <div id="s-usr"  class="stat-value">0</div>
+          <div id="s-usr" class="stat-value">0</div>
           <div id="s-usr-sub" class="stat-sub" style="color:#F472B6"></div>
         </div>
         <div class="stat-card" style="border:1px solid #FBBF2433">
           <div class="stat-label">Busiest Day</div>
-          <div id="s-day"  class="stat-value" style="font-size:22px">—</div>
+          <div id="s-day" class="stat-value" style="font-size:22px">—</div>
           <div id="s-day-sub" class="stat-sub" style="color:#FBBF24"></div>
         </div>
       </div>
 
-      <!-- Day of Week + Hour Heatmap -->
+      <!-- DoW + Hours -->
       <div class="two-col" style="margin-bottom:32px">
-
         <div class="section">
           <div class="section-title">📅 Messages by Day of Week</div>
           <div class="dow-grid" id="dow-chart"></div>
         </div>
-
         <div class="section">
-          <div class="section-title">🕐 Messages by Hour of Day <span style="color:#4b5563;font-size:10px">(workspace local time)</span></div>
+          <div class="section-title">🕐 Messages by Hour <span style="color:#4b5563;font-size:10px">(local time)</span></div>
           <div id="hour-chart" style="display:flex;gap:3px;align-items:flex-end;height:80px"></div>
           <div id="hour-labels" style="display:flex;gap:3px;margin-top:4px"></div>
         </div>
       </div>
 
-      <!-- Activity Heatmap (day x hour) -->
+      <!-- Heatmap -->
       <div class="section">
         <div class="section-title">🔥 Activity Heatmap — Day × Hour</div>
-        <div class="heatmap-wrap">
-          <div class="heatmap-grid" id="heatmap"></div>
-        </div>
+        <div class="heatmap-wrap"><div class="heatmap-grid" id="heatmap"></div></div>
       </div>
 
-      <!-- Top Channels + Top Contributors side by side -->
+      <!-- Channels + Contributors -->
       <div class="two-col">
         <div class="section">
-          <div class="section-title">
-            📢 Top Channels
-            <button class="export-btn" onclick="exportCSV('channels')">↓ CSV</button>
-          </div>
+          <div class="section-title">📢 Top Channels <button class="export-btn" onclick="exportCSV('channels')">↓ CSV</button></div>
           <div class="rows" id="ch-list"></div>
         </div>
         <div class="section">
-          <div class="section-title">
-            🏆 Top Contributors
-            <button class="export-btn" onclick="exportCSV('users')">↓ CSV</button>
-          </div>
+          <div class="section-title">🏆 Top Contributors <span style="color:#4b5563;font-size:10px">click to drill down</span> <button class="export-btn" onclick="exportCSV('users')">↓ CSV</button></div>
           <div class="rows" id="user-list"></div>
         </div>
       </div>
 
       <!-- Most Replied-To -->
       <div class="section">
-        <div class="section-title">
-          💬 Most Replied-To Users
-          <button class="export-btn" onclick="exportCSV('replies')">↓ CSV</button>
-        </div>
+        <div class="section-title">💬 Most Replied-To Users <button class="export-btn" onclick="exportCSV('replies')">↓ CSV</button></div>
         <div class="rows" id="reply-list"></div>
       </div>
 
-      <!-- Top Emojis + Most Reacted Posts -->
+      <!-- Emojis + Top Posts -->
       <div class="two-col">
         <div class="section">
-          <div class="section-title">
-            😂 Top Emojis Used
-            <button class="export-btn" onclick="exportCSV('emojis')">↓ CSV</button>
-          </div>
+          <div class="section-title">😂 Top Emojis <button class="export-btn" onclick="exportCSV('emojis')">↓ CSV</button></div>
           <div class="rows" id="emoji-list"></div>
         </div>
         <div class="section">
-          <div class="section-title">
-            🔥 Most Reacted Posts
-            <button class="export-btn" onclick="exportCSV('topposts')">↓ CSV</button>
-          </div>
-          <div id="top-posts-list" class="rows"></div>
+          <div class="section-title">🔥 Most Reacted Posts <button class="export-btn" onclick="exportCSV('topposts')">↓ CSV</button></div>
+          <div class="rows" id="top-posts-list"></div>
         </div>
       </div>
 
-      <!-- Raw Messages Export -->
+      <!-- Raw export -->
       <div class="section">
-        <div class="section-title">
-          📄 Raw Message Data
-          <button class="export-btn" onclick="exportCSV('messages')">↓ Full Messages CSV</button>
-        </div>
+        <div class="section-title">📄 Raw Message Data <button class="export-btn" onclick="exportCSV('messages')">↓ Full CSV</button></div>
         <div style="color:#4b5563;font-size:12px;padding:12px 16px;background:#161b2e;border-radius:8px;border:1px solid #1e2736">
-          Export includes: timestamp, channel, user, message text, thread info, reply count &amp; reactions.
+          Includes: timestamp, channel, user, text, thread info, reply count &amp; reactions.
         </div>
       </div>
-
-    </div><!-- /results -->
+    </div>
     <div id="empty-msg">No messages found in the selected time window.</div>
+  </div>
+</div>
+
+<!-- ── Channel Filter Panel ── -->
+<div id="filter-panel">
+  <div class="filter-header">
+    <div class="filter-title">Filter Channels</div>
+    <button class="filter-close" onclick="toggleFilterPanel()">×</button>
+  </div>
+  <div class="filter-actions">
+    <button class="filter-action-btn" onclick="selectAllChannels()">Select All</button>
+    <button class="filter-action-btn" onclick="deselectAllChannels()">Deselect All</button>
+    <button class="filter-action-btn" onclick="selectActiveOnly()">Active Only</button>
+  </div>
+  <div class="filter-search">
+    <input id="filter-search-input" placeholder="Search channels…" oninput="filterChannelList(this.value)"/>
+  </div>
+  <div class="filter-list" id="filter-channel-list"></div>
+  <div class="filter-apply">
+    <button class="filter-apply-btn" onclick="applyFilter()">Apply Filter &amp; Rescan</button>
+  </div>
+</div>
+
+<!-- ── User Drill-Down Modal ── -->
+<div id="user-modal" onclick="closeModalIfBackdrop(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-user-info">
+        <div id="modal-avatar" class="modal-avatar"></div>
+        <div>
+          <div id="modal-name" class="modal-name"></div>
+          <div id="modal-stats" class="modal-stats"></div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <div class="modal-loading"><div class="spinner"></div> Loading posts…</div>
+    </div>
   </div>
 </div>
 
 <script>
 const PROXY = window.location.origin + '/api';
 const COLORS = ['#4ADE80','#60A5FA','#F472B6','#FBBF24','#A78BFA','#34D399','#FB923C','#38BDF8','#E879F9','#FCD34D'];
-const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 let token = '', currentDays = 30;
-let allChannels = [], allMembers = [], channelStats = [], userStats = [], replyStats = [];
-let rawMessages = [];
-let dowCounts = new Array(7).fill(0);
-let hourCounts = new Array(24).fill(0);
+let allChannels = [], allMembers = [], memberMap = {};
+let channelStats = [], userStats = [], replyStats = [];
+let rawMessages = [], dowCounts = new Array(7).fill(0), hourCounts = new Array(24).fill(0);
 let heatmap = Array.from({length:7}, () => new Array(24).fill(0));
+let selectedChannelIds = new Set(); // empty = all channels
+let allChannelIds = new Set();
 
+// ── Boot ──
 document.addEventListener('DOMContentLoaded', () => {
-  // Check for OAuth token in URL query param (?token=...)
-  const params = new URLSearchParams(window.location.search);
+  const params   = new URLSearchParams(window.location.search);
   const urlToken = params.get('token');
   const urlError = params.get('error');
-
-  if (urlError) {
-    const el = document.getElementById('connect-error');
-    el.style.display = 'block';
-    el.textContent = '✕ Slack error: ' + urlError;
-  }
-
+  if (urlError) { const el = document.getElementById('connect-error'); el.style.display='block'; el.textContent='✕ Slack error: '+urlError; }
   if (urlToken) {
-    // Clean token from URL so it's not visible / bookmarkable
     window.history.replaceState({}, document.title, '/');
     token = urlToken;
     document.getElementById('connect-screen').style.display = 'none';
@@ -332,29 +385,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function toggleSetup(btn) {
-  const guide = btn.nextElementSibling;
-  const open  = guide.style.display === 'block';
-  guide.style.display = open ? 'none' : 'block';
-  btn.textContent = (open ? '▸' : '▾') + ' PROXY SETUP INSTRUCTIONS';
-}
-
-function doConnect() {
-  // OAuth handles login — this is a no-op now
-}
-
 function disconnect() {
   token = '';
   document.getElementById('connect-screen').style.display = 'flex';
   document.getElementById('dashboard').style.display = 'none';
-
 }
 
 function setDays(d) {
   currentDays = d;
-  document.querySelectorAll('.day-btn').forEach(b => {
-    b.className = 'day-btn ' + (parseInt(b.dataset.days) === d ? 'active' : 'inactive');
-  });
+  document.querySelectorAll('.day-btn').forEach(b => b.className = 'day-btn '+(parseInt(b.dataset.days)===d?'active':'inactive'));
   runAnalysis();
 }
 
@@ -370,12 +409,13 @@ function showDashError(msg) {
   el.innerHTML = msg ? `✕ ${msg}` : '';
 }
 
+// ── Slack API ──
 async function slackGet(method, params={}) {
   const url = new URL(`${PROXY}/${method}`);
   url.searchParams.set('token', token);
   Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, String(v)));
   const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`Proxy error HTTP ${res.status} — is proxy.js running?`);
+  if (!res.ok) throw new Error(`Proxy error HTTP ${res.status}`);
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || 'Slack API error');
   return data;
@@ -412,6 +452,7 @@ async function fetchChannelHistory(channelId, oldest) {
   } catch { return []; }
 }
 
+// ── Main Analysis ──
 async function runAnalysis() {
   setLoading(true, 'Verifying token…');
   showDashError('');
@@ -422,212 +463,286 @@ async function runAnalysis() {
 
   try {
     const auth = await slackGet('auth.test');
-    document.getElementById('workspace-label').textContent = '· ' + (auth.team || 'Workspace');
+    document.getElementById('workspace-label').textContent = '· '+(auth.team||'Workspace');
 
     setLoading(true, 'Fetching channels…');
     allChannels = await fetchAllChannels();
+    allChannelIds = new Set(allChannels.map(c => c.id));
+    // On first load select all; on re-run respect current selection
+    if (selectedChannelIds.size === 0) selectedChannelIds = new Set(allChannels.map(c => c.id));
+    buildFilterPanel();
 
     setLoading(true, 'Fetching members…');
     allMembers = await fetchAllMembers();
-    const memberMap = Object.fromEntries(allMembers.map(m => [m.id, m.real_name || m.name || m.id]));
+    memberMap = Object.fromEntries(allMembers.map(m => [m.id, m.real_name || m.name || m.id]));
 
     const oldest = Math.floor(Date.now() / 1000) - currentDays * 86400;
-    const userMsgCount   = {};
-    const userReplyCount = {}; // replies received
-    const emojiCount     = {}; // emoji name -> total uses
-    const topPosts       = []; // messages with most reactions
-    const chStats = [];
+    const userMsgCount = {}, userReplyCount = {}, emojiCount = {}, topPosts = [], chStats = [];
+    const targets = allChannels.filter(c => selectedChannelIds.has(c.id));
 
-    for (let i = 0; i < allChannels.length; i++) {
-      const ch = allChannels[i];
-      setLoading(true, `Scanning ${i+1}/${allChannels.length}: #${ch.name}`);
+    for (let i = 0; i < targets.length; i++) {
+      const ch = targets[i];
+      setLoading(true, `Scanning ${i+1}/${targets.length}: #${ch.name}`);
       const msgs = await fetchChannelHistory(ch.id, oldest);
       let msgCount = 0;
 
       msgs.forEach(m => {
         if (m.type !== 'message' || m.subtype) return;
         msgCount++;
-
-        // Day / hour breakdown
         const d = new Date(parseFloat(m.ts) * 1000);
-        const dow  = d.getDay();
-        const hour = d.getHours();
-        dowCounts[dow]++;
-        hourCounts[hour]++;
-        heatmap[dow][hour]++;
-
-        // User message counts
+        dowCounts[d.getDay()]++;
+        hourCounts[d.getHours()]++;
+        heatmap[d.getDay()][d.getHours()]++;
         if (m.user) userMsgCount[m.user] = (userMsgCount[m.user] || 0) + 1;
-
-        // Reply counts — credit the original poster
-        if (m.reply_count && m.reply_count > 0 && m.user) {
-          userReplyCount[m.user] = (userReplyCount[m.user] || 0) + m.reply_count;
+        if (m.reply_count > 0 && m.user) userReplyCount[m.user] = (userReplyCount[m.user] || 0) + m.reply_count;
+        if (m.reactions) {
+          let total = 0;
+          m.reactions.forEach(r => { emojiCount[r.name] = (emojiCount[r.name]||0)+r.count; total += r.count; });
+          if (total >= 2) topPosts.push({ channel:ch.name, user:memberMap[m.user]||m.user||'?', text:(m.text||'').slice(0,120), reactions:m.reactions.map(r=>`:${r.name}: ×${r.count}`).join('  '), total, ts:new Date(parseFloat(m.ts)*1000).toISOString().slice(0,10) });
         }
-
-        // Emoji / reaction tracking
-        if (m.reactions && m.reactions.length > 0) {
-          let totalReactions = 0;
-          m.reactions.forEach(r => {
-            emojiCount[r.name] = (emojiCount[r.name] || 0) + r.count;
-            totalReactions += r.count;
-          });
-          if (totalReactions >= 2) {
-            topPosts.push({
-              channel:    ch.name,
-              user:       memberMap[m.user] || m.user || 'Unknown',
-              text:       (m.text || '').slice(0, 120),
-              reactions:  m.reactions.map(r => `:${r.name}: ×${r.count}`).join('  '),
-              total:      totalReactions,
-              ts:         new Date(parseFloat(m.ts) * 1000).toISOString().slice(0,10)
-            });
-          }
-        }
-
-        // Raw message store
         rawMessages.push({
-          channel:    ch.name,
-          channel_id: ch.id,
-          user_id:    m.user || '',
-          user_name:  memberMap[m.user] || m.user || '',
-          timestamp:  new Date(parseFloat(m.ts) * 1000).toISOString(),
-          text:       (m.text || '').replace(/[\r\n]+/g, ' ').replace(/"/g, '""'),
-          thread_ts:  m.thread_ts || '',
-          reply_count:m.reply_count || 0,
-          reactions:  m.reactions ? m.reactions.map(r => r.name).join('|') : ''
+          channel:ch.name, channel_id:ch.id, user_id:m.user||'', user_name:memberMap[m.user]||m.user||'',
+          timestamp:new Date(parseFloat(m.ts)*1000).toISOString(),
+          text:(m.text||'').replace(/[\r\n]+/g,' ').replace(/"/g,'""'),
+          thread_ts:m.thread_ts||'', reply_count:m.reply_count||0,
+          reactions:m.reactions?m.reactions.map(r=>r.name).join('|'):''
         });
       });
 
-      if (msgCount > 0)
-        chStats.push({ id:ch.id, name:ch.name, messages:msgCount, memberCount:ch.num_members||0 });
-
+      if (msgCount > 0) chStats.push({ id:ch.id, name:ch.name, messages:msgCount, memberCount:ch.num_members||0 });
       await new Promise(r => setTimeout(r, 120));
     }
 
     chStats.sort((a,b) => b.messages - a.messages);
     channelStats = chStats;
-    const total = chStats.reduce((s,c) => s + c.messages, 0);
+    const total = chStats.reduce((s,c) => s+c.messages, 0);
 
     userStats = Object.entries(userMsgCount)
       .map(([id,count]) => ({ id, name:memberMap[id]||id, messages:count }))
       .sort((a,b) => b.messages - a.messages).slice(0,20);
 
-    // Top emojis
-    window._emojiStats = Object.entries(emojiCount)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a,b) => b.count - a.count).slice(0, 20);
-
-    // Top reacted posts
-    window._topPosts = topPosts.sort((a,b) => b.total - a.total).slice(0, 15);
+    window._emojiStats = Object.entries(emojiCount).map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count).slice(0,20);
+    window._topPosts   = topPosts.sort((a,b)=>b.total-a.total).slice(0,15);
 
     replyStats = Object.entries(userReplyCount)
-      .map(([id,count]) => ({ id, name:memberMap[id]||id, replies:count, msgs: userMsgCount[id]||0 }))
+      .map(([id,count]) => ({ id, name:memberMap[id]||id, replies:count, msgs:userMsgCount[id]||0 }))
       .sort((a,b) => b.replies - a.replies).slice(0,15);
 
-    // Busiest day
     const maxDow = dowCounts.indexOf(Math.max(...dowCounts));
-
-    // Update stat cards
     document.getElementById('s-msgs').textContent     = total.toLocaleString();
     document.getElementById('s-msgs-sub').textContent = `Last ${currentDays} days`;
     document.getElementById('s-ch').textContent       = chStats.length;
-    document.getElementById('s-ch-sub').textContent   = `of ${allChannels.length} total`;
+    document.getElementById('s-ch-sub').textContent   = `of ${targets.length} scanned`;
     document.getElementById('s-usr').textContent      = userStats.length;
     document.getElementById('s-usr-sub').textContent  = `of ${allMembers.length} members`;
     document.getElementById('s-day').textContent      = DAYS[maxDow].slice(0,3);
     document.getElementById('s-day-sub').textContent  = `${dowCounts[maxDow].toLocaleString()} messages`;
 
-    renderDow();
-    renderHours();
-    renderHeatmap();
-    renderChannels();
-    renderUsers();
-    renderReplies();
-    renderEmojis();
-    renderTopPosts();
+    renderDow(); renderHours(); renderHeatmap(); renderChannels();
+    renderUsers(); renderReplies(); renderEmojis(); renderTopPosts();
 
     setLoading(false);
-    document.getElementById('results').style.display    = total > 0 ? 'block' : 'none';
-    document.getElementById('empty-msg').style.display  = total === 0 ? 'block' : 'none';
+    document.getElementById('results').style.display   = total > 0 ? 'block' : 'none';
+    document.getElementById('empty-msg').style.display = total === 0 ? 'block' : 'none';
+    updateFilterBtn();
 
-  } catch(e) {
-    setLoading(false);
-    showDashError(e.message);
-  }
+  } catch(e) { setLoading(false); showDashError(e.message); }
+}
+
+// ── Channel Filter Panel ──
+function buildFilterPanel() {
+  const list = document.getElementById('filter-channel-list');
+  list.innerHTML = '';
+  const sorted = [...allChannels].sort((a,b) => a.name.localeCompare(b.name));
+  sorted.forEach(ch => {
+    const stat = channelStats.find(s => s.id === ch.id);
+    const item = document.createElement('div');
+    item.className = 'filter-item';
+    item.dataset.name = ch.name;
+    item.innerHTML = `
+      <input type="checkbox" id="fc-${ch.id}" ${selectedChannelIds.has(ch.id)?'checked':''} onchange="toggleChannelSelect('${ch.id}')"/>
+      <label for="fc-${ch.id}" class="filter-item-name">#${ch.name}</label>
+      <span class="filter-item-count">${stat ? stat.messages : 0}</span>`;
+    list.appendChild(item);
+  });
+}
+
+function filterChannelList(query) {
+  document.querySelectorAll('.filter-item').forEach(item => {
+    item.style.display = item.dataset.name.includes(query.toLowerCase()) ? 'flex' : 'none';
+  });
+}
+
+function toggleChannelSelect(id) {
+  if (selectedChannelIds.has(id)) selectedChannelIds.delete(id);
+  else selectedChannelIds.add(id);
+}
+
+function selectAllChannels() {
+  allChannels.forEach(c => selectedChannelIds.add(c.id));
+  document.querySelectorAll('#filter-channel-list input[type=checkbox]').forEach(cb => cb.checked = true);
+}
+
+function deselectAllChannels() {
+  selectedChannelIds.clear();
+  document.querySelectorAll('#filter-channel-list input[type=checkbox]').forEach(cb => cb.checked = false);
+}
+
+function selectActiveOnly() {
+  selectedChannelIds.clear();
+  channelStats.forEach(c => selectedChannelIds.add(c.id));
+  document.querySelectorAll('#filter-channel-list input[type=checkbox]').forEach(cb => {
+    const id = cb.id.replace('fc-','');
+    cb.checked = selectedChannelIds.has(id);
+  });
+}
+
+function toggleFilterPanel() {
+  document.getElementById('filter-panel').classList.toggle('open');
+}
+
+function applyFilter() {
+  document.getElementById('filter-panel').classList.remove('open');
+  updateFilterBtn();
+  runAnalysis();
+}
+
+function updateFilterBtn() {
+  const btn = document.getElementById('filter-toggle-btn');
+  const isFiltered = selectedChannelIds.size < allChannelIds.size;
+  btn.className = 'filter-btn' + (isFiltered ? ' has-filter' : '');
+  btn.textContent = isFiltered ? `⚙ Channels (${selectedChannelIds.size}/${allChannelIds.size})` : '⚙ Channels';
+}
+
+// ── User Drill-Down Modal ──
+function openUserModal(userId) {
+  const user = userStats.find(u => u.id === userId);
+  if (!user) return;
+
+  const color  = COLORS[userStats.indexOf(user) % COLORS.length];
+  const color2 = COLORS[(userStats.indexOf(user)+3) % COLORS.length];
+  const userMsgs = rawMessages.filter(m => m.user_id === userId);
+
+  // Header
+  document.getElementById('modal-avatar').textContent = user.name.charAt(0).toUpperCase();
+  document.getElementById('modal-avatar').style.cssText = `background:linear-gradient(135deg,${color}33,${color2}33);border:1.5px solid ${color}66;color:${color};width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700`;
+  document.getElementById('modal-name').textContent  = user.name;
+
+  const replyInfo = replyStats.find(r => r.id === userId);
+  document.getElementById('modal-stats').textContent =
+    `${user.messages} messages · ${replyInfo ? replyInfo.replies+' replies received' : '0 replies received'}`;
+
+  // Body
+  const body = document.getElementById('modal-body');
+
+  // Channel breakdown
+  const chBreakdown = {};
+  userMsgs.forEach(m => { chBreakdown[m.channel] = (chBreakdown[m.channel]||0)+1; });
+  const chSorted = Object.entries(chBreakdown).sort((a,b)=>b[1]-a[1]);
+  const maxCh = chSorted[0]?.[1] || 1;
+
+  let html = `<div class="modal-section-title">Activity by Channel</div>
+    <div class="user-ch-grid">`;
+  chSorted.forEach(([ch, count]) => {
+    const pct = (count/maxCh*100).toFixed(1);
+    html += `<div class="user-ch-row">
+      <div class="user-ch-name"><span>#</span>${ch}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color})"></div></div>
+      <div style="color:${color};font-size:11px;font-weight:700;text-align:right">${count}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Recent messages
+  const recent = [...userMsgs]
+    .filter(m => m.text && m.text.trim())
+    .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, 30);
+
+  html += `<div class="modal-section-title" style="margin-top:24px">Recent Posts (${recent.length} shown)</div>
+    <div class="msg-list">`;
+
+  recent.forEach(m => {
+    html += `<div class="msg-item">
+      <div class="msg-meta">
+        <span class="msg-channel">#${m.channel}</span>
+        <span class="msg-date">${new Date(m.timestamp).toLocaleString()}</span>
+        ${m.reply_count > 0 ? `<span class="msg-replies">↩ ${m.reply_count} repl${m.reply_count>1?'ies':'y'}</span>` : ''}
+      </div>
+      <div class="msg-text">${escapeHtml(m.text)}</div>
+      ${m.reactions ? `<div class="msg-reactions">${m.reactions.split('|').map(r=>`:${r}:`).join(' ')}</div>` : ''}
+    </div>`;
+  });
+  html += `</div>`;
+
+  body.innerHTML = html;
+  document.getElementById('user-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('user-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeModalIfBackdrop(e) {
+  if (e.target === document.getElementById('user-modal')) closeModal();
+}
+
+function escapeHtml(text) {
+  return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // ── Renderers ──
-
 function renderDow() {
   const max = Math.max(...dowCounts, 1);
   const el  = document.getElementById('dow-chart');
   el.innerHTML = '';
   DAYS.forEach((day, i) => {
-    const pct   = (dowCounts[i] / max * 100).toFixed(1);
-    const color = COLORS[i % COLORS.length];
-    el.innerHTML += `
-      <div class="dow-col">
-        <div class="dow-bar-wrap">
-          <div class="dow-bar" style="height:${pct}%;background:linear-gradient(0deg,${color}99,${color});box-shadow:0 0 8px ${color}55"></div>
-        </div>
-        <div class="dow-label">${day.slice(0,3)}</div>
-        <div class="dow-count" style="color:${color}">${dowCounts[i].toLocaleString()}</div>
-      </div>`;
+    const pct = (dowCounts[i]/max*100).toFixed(1), color = COLORS[i%COLORS.length];
+    el.innerHTML += `<div class="dow-col">
+      <div class="dow-bar-wrap"><div class="dow-bar" style="height:${pct}%;background:linear-gradient(0deg,${color}99,${color})"></div></div>
+      <div class="dow-label">${day.slice(0,3)}</div>
+      <div class="dow-count" style="color:${color}">${dowCounts[i].toLocaleString()}</div>
+    </div>`;
   });
 }
 
 function renderHours() {
-  const max    = Math.max(...hourCounts, 1);
-  const chart  = document.getElementById('hour-chart');
-  const labels = document.getElementById('hour-labels');
+  const max = Math.max(...hourCounts, 1);
+  const chart = document.getElementById('hour-chart'), labels = document.getElementById('hour-labels');
   chart.innerHTML = ''; labels.innerHTML = '';
   hourCounts.forEach((count, h) => {
-    const pct   = (count / max * 100).toFixed(1);
-    const color = count === max ? '#4ADE80' : '#60A5FA';
-    const label = h === 0 ? '12a' : h < 12 ? `${h}a` : h === 12 ? '12p' : `${h-12}p`;
-    chart.innerHTML  += `<div style="flex:1;height:${pct}%;background:linear-gradient(0deg,${color}88,${color});border-radius:3px 3px 0 0;min-height:2px" title="${count} msgs at ${label}"></div>`;
-    labels.innerHTML += `<div style="flex:1;text-align:center;color:#374151;font-size:8px">${h%3===0?label:''}</div>`;
+    const pct = (count/max*100).toFixed(1), color = count===max ? '#4ADE80' : '#60A5FA';
+    const lbl = h===0?'12a':h<12?`${h}a`:h===12?'12p':`${h-12}p`;
+    chart.innerHTML  += `<div style="flex:1;height:${pct}%;background:linear-gradient(0deg,${color}88,${color});border-radius:3px 3px 0 0;min-height:2px" title="${count} msgs at ${lbl}"></div>`;
+    labels.innerHTML += `<div style="flex:1;text-align:center;color:#374151;font-size:8px">${h%3===0?lbl:''}</div>`;
   });
 }
 
 function renderHeatmap() {
-  const flat = heatmap.flat();
-  const max  = Math.max(...flat, 1);
-  const el   = document.getElementById('heatmap');
-  el.innerHTML = '';
-
-  // Hour headers
-  el.innerHTML += '<div></div>';
-  for (let h = 0; h < 24; h++) {
-    const label = h === 0 ? '12a' : h < 12 ? `${h}a` : h === 12 ? '12p' : `${h-12}p`;
-    el.innerHTML += `<div class="hm-hour-label">${h%3===0?label:''}</div>`;
-  }
-
-  DAYS.forEach((day, d) => {
+  const max = Math.max(...heatmap.flat(), 1), el = document.getElementById('heatmap');
+  el.innerHTML = '<div></div>';
+  for (let h=0;h<24;h++) { const lbl=h===0?'12a':h<12?`${h}a`:h===12?'12p':`${h-12}p`; el.innerHTML += `<div class="hm-hour-label">${h%3===0?lbl:''}</div>`; }
+  DAYS.forEach((day,d) => {
     el.innerHTML += `<div class="hm-label">${day.slice(0,3)}</div>`;
-    for (let h = 0; h < 24; h++) {
-      const val    = heatmap[d][h];
-      const alpha  = val === 0 ? 0.05 : 0.15 + (val / max) * 0.85;
-      const color  = val === 0 ? '#1e2736' : `rgba(74,222,128,${alpha.toFixed(2)})`;
-      const tip    = `${day} ${h}:00 — ${val} msg${val!==1?'s':''}`;
-      el.innerHTML += `<div class="hm-cell" style="background:${color}" data-tip="${tip}"></div>`;
+    for (let h=0;h<24;h++) {
+      const v=heatmap[d][h], a=v===0?0.05:0.15+(v/max)*0.85;
+      el.innerHTML += `<div class="hm-cell" style="background:${v===0?'#1e2736':`rgba(74,222,128,${a.toFixed(2)})`}" data-tip="${day} ${h}:00 — ${v} msg${v!==1?'s':''}"></div>`;
     }
   });
 }
 
 function renderChannels() {
-  const el  = document.getElementById('ch-list');
-  const max = channelStats[0]?.messages || 1;
+  const el = document.getElementById('ch-list'), max = channelStats[0]?.messages||1;
   el.innerHTML = '';
-  channelStats.slice(0,15).forEach((ch, i) => {
-    const color = COLORS[i % COLORS.length];
-    const pct   = (ch.messages / max * 100).toFixed(1);
-    const div   = document.createElement('div');
-    div.className = 'row ch-row';
-    div.style.animationDelay = `${i * 0.03}s`;
-    div.innerHTML = `
-      <div class="row-rank">${String(i+1).padStart(2,'0')}</div>
+  channelStats.slice(0,15).forEach((ch,i) => {
+    const color=COLORS[i%COLORS.length], pct=(ch.messages/max*100).toFixed(1);
+    const div = document.createElement('div');
+    div.className='row ch-row'; div.style.animationDelay=`${i*.03}s`;
+    div.innerHTML=`<div class="row-rank">${String(i+1).padStart(2,'0')}</div>
       <div class="row-name"><span style="color:#4b5563">#</span>${ch.name}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color});box-shadow:0 0 6px ${color}55"></div></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color})"></div></div>
       <div class="row-count" style="color:${color}">${ch.messages.toLocaleString()}</div>
       <div class="row-sub">${ch.memberCount} 👤</div>`;
     el.appendChild(div);
@@ -635,66 +750,48 @@ function renderChannels() {
 }
 
 function renderUsers() {
-  const el  = document.getElementById('user-list');
-  const max = userStats[0]?.messages || 1;
+  const el = document.getElementById('user-list'), max = userStats[0]?.messages||1;
   el.innerHTML = '';
-  userStats.forEach((u, i) => {
-    const color  = COLORS[i % COLORS.length];
-    const color2 = COLORS[(i+3) % COLORS.length];
-    const pct    = (u.messages / max * 100).toFixed(1);
-    const div    = document.createElement('div');
-    div.className = 'row user-row';
-    div.style.animationDelay = `${i * 0.03}s`;
-    div.innerHTML = `
-      <div class="row-rank">${String(i+1).padStart(2,'0')}</div>
+  userStats.forEach((u,i) => {
+    const color=COLORS[i%COLORS.length], color2=COLORS[(i+3)%COLORS.length], pct=(u.messages/max*100).toFixed(1);
+    const div = document.createElement('div');
+    div.className='row user-row'; div.style.animationDelay=`${i*.03}s`;
+    div.title = 'Click to see all posts';
+    div.onclick = () => openUserModal(u.id);
+    div.innerHTML=`<div class="row-rank">${String(i+1).padStart(2,'0')}</div>
       <div class="avatar" style="background:linear-gradient(135deg,${color}33,${color2}33);border:1.5px solid ${color}66;color:${color}">${u.name.charAt(0).toUpperCase()}</div>
       <div class="row-name">${u.name}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color});box-shadow:0 0 6px ${color}55"></div></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color})"></div></div>
       <div class="row-count" style="color:${color}">${u.messages.toLocaleString()}</div>`;
     el.appendChild(div);
   });
 }
 
 function renderReplies() {
-  const el  = document.getElementById('reply-list');
-  const max = replyStats[0]?.replies || 1;
+  const el = document.getElementById('reply-list'), max = replyStats[0]?.replies||1;
   el.innerHTML = '';
-  replyStats.forEach((u, i) => {
-    const color  = COLORS[i % COLORS.length];
-    const color2 = COLORS[(i+4) % COLORS.length];
-    const pct    = (u.replies / max * 100).toFixed(1);
-    const div    = document.createElement('div');
-    div.className = 'row reply-row';
-    div.style.animationDelay = `${i * 0.03}s`;
-    div.innerHTML = `
-      <div class="row-rank">${String(i+1).padStart(2,'0')}</div>
+  replyStats.forEach((u,i) => {
+    const color=COLORS[i%COLORS.length], color2=COLORS[(i+4)%COLORS.length], pct=(u.replies/max*100).toFixed(1);
+    const div = document.createElement('div');
+    div.className='row reply-row'; div.style.animationDelay=`${i*.03}s`;
+    div.innerHTML=`<div class="row-rank">${String(i+1).padStart(2,'0')}</div>
       <div class="avatar" style="background:linear-gradient(135deg,${color}33,${color2}33);border:1.5px solid ${color}66;color:${color}">${u.name.charAt(0).toUpperCase()}</div>
       <div class="row-name">${u.name}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color});box-shadow:0 0 6px ${color}55"></div></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color})"></div></div>
       <div class="row-count" style="color:${color}">${u.replies.toLocaleString()} replies</div>
       <div class="row-sub">${u.msgs} sent</div>`;
     el.appendChild(div);
   });
 }
 
-// ── Emoji renderers ──
-
 function renderEmojis() {
-  const stats = window._emojiStats || [];
-  const el    = document.getElementById('emoji-list');
-  const max   = stats[0]?.count || 1;
-  el.innerHTML = '';
-  stats.forEach((e, i) => {
-    const color = COLORS[i % COLORS.length];
-    const pct   = (e.count / max * 100).toFixed(1);
-    // Try to render as native emoji, fall back to :name: text
-    const emojiChar = emojiNameToChar(e.name);
-    const div = document.createElement('div');
-    div.className = 'row emoji-row';
-    div.style.animationDelay = `${i * 0.03}s`;
-    div.innerHTML = `
-      <div class="row-rank">${String(i+1).padStart(2,'0')}</div>
-      <div class="emoji-big">${emojiChar}</div>
+  const stats = window._emojiStats||[], el=document.getElementById('emoji-list'), max=stats[0]?.count||1;
+  el.innerHTML='';
+  stats.forEach((e,i) => {
+    const color=COLORS[i%COLORS.length], pct=(e.count/max*100).toFixed(1);
+    const div=document.createElement('div'); div.className='row emoji-row'; div.style.animationDelay=`${i*.03}s`;
+    div.innerHTML=`<div class="row-rank">${String(i+1).padStart(2,'0')}</div>
+      <div class="emoji-big">${emojiChar(e.name)}</div>
       <div class="row-name" style="font-size:12px">:${e.name}:</div>
       <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color})"></div></div>
       <div class="row-count" style="color:${color}">${e.count}</div>`;
@@ -703,103 +800,48 @@ function renderEmojis() {
 }
 
 function renderTopPosts() {
-  const posts = window._topPosts || [];
-  const el    = document.getElementById('top-posts-list');
-  el.innerHTML = '';
-  if (!posts.length) {
-    el.innerHTML = '<div style="color:#4b5563;font-size:12px;padding:12px">No reacted posts found in this time window.</div>';
-    return;
-  }
-  posts.forEach((p, i) => {
-    const color = COLORS[i % COLORS.length];
-    const div   = document.createElement('div');
-    div.className = 'row post-row';
-    div.style.animationDelay = `${i * 0.03}s`;
-    div.innerHTML = `
-      <div class="post-meta">
-        <span style="color:${color};font-weight:700;font-size:13px">${p.total} reactions</span>
-        <span style="color:#6b7280;font-size:11px">#${p.channel}</span>
-        <span style="color:#4b5563;font-size:11px">${p.user}</span>
-        <span style="color:#374151;font-size:10px">${p.ts}</span>
-      </div>
-      <div class="post-text">${p.text || '<em style="color:#374151">No text content</em>'}</div>
-      <div class="post-reactions">${p.reactions}</div>`;
+  const posts=window._topPosts||[], el=document.getElementById('top-posts-list');
+  el.innerHTML='';
+  if (!posts.length) { el.innerHTML='<div style="color:#4b5563;font-size:12px;padding:12px">No reacted posts found.</div>'; return; }
+  posts.forEach((p,i) => {
+    const color=COLORS[i%COLORS.length], div=document.createElement('div');
+    div.className='row post-row'; div.style.animationDelay=`${i*.03}s`;
+    div.innerHTML=`<div class="post-meta">
+      <span style="color:${color};font-weight:700">${p.total} reactions</span>
+      <span style="color:#6b7280;font-size:11px">#${p.channel}</span>
+      <span style="color:#4b5563;font-size:11px">${p.user}</span>
+      <span style="color:#374151;font-size:10px">${p.ts}</span>
+    </div>
+    <div class="post-text">${escapeHtml(p.text)||'<em style="color:#374151">No text</em>'}</div>
+    <div class="post-reactions">${p.reactions}</div>`;
     el.appendChild(div);
   });
 }
 
-// Map common Slack emoji names to unicode characters
-function emojiNameToChar(name) {
-  const map = {
-    'thumbsup':'👍','thumbsdown':'👎','+1':'👍','-1':'👎',
-    'heart':'❤️','fire':'🔥','laugh':'😂','joy':'😂',
-    'tada':'🎉','party':'🎉','white_check_mark':'✅','check':'✅',
-    'eyes':'👀','raised_hands':'🙌','clap':'👏','pray':'🙏',
-    'muscle':'💪','100':'💯','rocket':'🚀','star':'⭐',
-    'wave':'👋','ok_hand':'👌','point_up':'☝️','thinking_face':'🤔',
-    'face_with_tears_of_joy':'😂','slightly_smiling_face':'🙂',
-    'smile':'😊','grinning':'😁','sweat_smile':'😅','sob':'😭',
-    'skull':'💀','exploding_head':'🤯','mind_blown':'🤯',
-    'sunglasses':'😎','saluting_face':'🫡','fist':'✊',
-    'raised_hand':'✋','v':'✌️','metal':'🤘','sos':'🆘',
-    'warning':'⚠️','no_entry':'⛔','x':'❌','heavy_check_mark':'✔️',
-    'bell':'🔔','mega':'📣','loudspeaker':'📢','speech_balloon':'💬',
-    'information_source':'ℹ️','question':'❓','exclamation':'❗',
-    'trophy':'🏆','medal':'🥇','crown':'👑','gem':'💎',
-    'moneybag':'💰','chart_with_upwards_trend':'📈','bar_chart':'📊',
-    'calendar':'📅','clock1':'🕐','hourglass':'⌛','alarm_clock':'⏰',
-    'coffee':'☕','beers':'🍺','pizza':'🍕','taco':'🌮',
-    'dog':'🐶','cat':'🐱','chicken':'🐔','goat':'🐐',
-  };
-  return map[name] || '🔹';
+function emojiChar(name) {
+  const m={'thumbsup':'👍','+1':'👍','thumbsdown':'👎','-1':'👎','heart':'❤️','fire':'🔥','joy':'😂','tada':'🎉','white_check_mark':'✅','eyes':'👀','raised_hands':'🙌','clap':'👏','pray':'🙏','muscle':'💪','100':'💯','rocket':'🚀','star':'⭐','wave':'👋','ok_hand':'👌','thinking_face':'🤔','smile':'😊','sob':'😭','skull':'💀','sunglasses':'😎','fist':'✊','trophy':'🏆','crown':'👑','moneybag':'💰','chart_with_upwards_trend':'📈','bar_chart':'📊','calendar':'📅','coffee':'☕','beers':'🍺','pizza':'🍕','saluting_face':'🫡'};
+  return m[name]||'🔹';
 }
 
-// ── CSV Export ──
-function toCSV(rows, headers) {
-  const esc = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
-  return [headers.join(','), ...rows.map(r => headers.map(h => esc(r[h])).join(','))].join('\n');
-}
-function downloadCSV(csv, filename) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
-  a.download = filename; a.click();
-}
-function dateStr() { return new Date().toISOString().slice(0,10); }
-function wsName()  { return (document.getElementById('workspace-label').textContent||'slack').replace('· ','').trim(); }
+// ── CSV ──
+function toCSV(rows,headers){const e=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;return[headers.join(','),...rows.map(r=>headers.map(h=>e(r[h])).join(','))].join('\n');}
+function dlCSV(csv,fn){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download=fn;a.click();}
+function dateStr(){return new Date().toISOString().slice(0,10);}
+function wsName(){return(document.getElementById('workspace-label').textContent||'slack').replace('· ','').trim();}
 
 function exportCSV(type) {
-  const d = dateStr(), w = wsName();
-  if (type === 'channels') {
-    downloadCSV(toCSV(channelStats.map(c=>({channel:c.name,channel_id:c.id,messages:c.messages,members:c.memberCount})),
-      ['channel','channel_id','messages','members']), `${w}_channels_${d}.csv`);
-  } else if (type === 'users') {
-    downloadCSV(toCSV(userStats.map(u=>({user:u.name,user_id:u.id,messages:u.messages})),
-      ['user','user_id','messages']), `${w}_users_${d}.csv`);
-  } else if (type === 'replies') {
-    downloadCSV(toCSV(replyStats.map(u=>({user:u.name,user_id:u.id,replies_received:u.replies,messages_sent:u.msgs})),
-      ['user','user_id','replies_received','messages_sent']), `${w}_replies_${d}.csv`);
-  } else if (type === 'messages') {
-    if (!rawMessages.length) return alert('No messages loaded.');
-    downloadCSV(toCSV(rawMessages, ['timestamp','channel','user_name','user_id','text','thread_ts','reply_count','reactions']),
-      `${w}_messages_${d}.csv`);
-  } else if (type === 'dow') {
-    downloadCSV(toCSV(DAYS.map((day,i)=>({day,messages:dowCounts[i]})),['day','messages']), `${w}_dow_${d}.csv`);
-  } else if (type === 'emojis') {
-    const stats = window._emojiStats || [];
-    downloadCSV(toCSV(stats.map(e=>({emoji:e.name, count:e.count})), ['emoji','count']), `${w}_emojis_${d}.csv`);
-  } else if (type === 'topposts') {
-    const posts = window._topPosts || [];
-    downloadCSV(toCSV(posts, ['total','channel','user','ts','text','reactions']), `${w}_top_posts_${d}.csv`);
-  } else if (type === 'hours') {
-    downloadCSV(toCSV(hourCounts.map((c,h)=>({hour:h,messages:c})),['hour','messages']), `${w}_hours_${d}.csv`);
-  }
+  const d=dateStr(),w=wsName();
+  if(type==='channels')  dlCSV(toCSV(channelStats.map(c=>({channel:c.name,channel_id:c.id,messages:c.messages,members:c.memberCount})),['channel','channel_id','messages','members']),`${w}_channels_${d}.csv`);
+  else if(type==='users') dlCSV(toCSV(userStats.map(u=>({user:u.name,user_id:u.id,messages:u.messages})),['user','user_id','messages']),`${w}_users_${d}.csv`);
+  else if(type==='replies') dlCSV(toCSV(replyStats.map(u=>({user:u.name,user_id:u.id,replies_received:u.replies,messages_sent:u.msgs})),['user','user_id','replies_received','messages_sent']),`${w}_replies_${d}.csv`);
+  else if(type==='messages'){if(!rawMessages.length)return alert('No messages loaded.');dlCSV(toCSV(rawMessages,['timestamp','channel','user_name','user_id','text','thread_ts','reply_count','reactions']),`${w}_messages_${d}.csv`);}
+  else if(type==='emojis') dlCSV(toCSV((window._emojiStats||[]).map(e=>({emoji:e.name,count:e.count})),['emoji','count']),`${w}_emojis_${d}.csv`);
+  else if(type==='topposts') dlCSV(toCSV((window._topPosts||[]),['total','channel','user','ts','text','reactions']),`${w}_top_posts_${d}.csv`);
+  else if(type==='dow') dlCSV(toCSV(DAYS.map((day,i)=>({day,messages:dowCounts[i]})),['day','messages']),`${w}_dow_${d}.csv`);
+  else if(type==='hours') dlCSV(toCSV(hourCounts.map((c,h)=>({hour:h,messages:c})),['hour','messages']),`${w}_hours_${d}.csv`);
 }
 
-function exportAll() {
-  ['channels','users','replies','messages','dow','hours','emojis','topposts'].forEach((t,i) => {
-    setTimeout(() => exportCSV(t), i * 500);
-  });
-}
+function exportAll(){['channels','users','replies','messages','emojis','topposts','dow','hours'].forEach((t,i)=>setTimeout(()=>exportCSV(t),i*500));}
 </script>
 </body>
 </html>
