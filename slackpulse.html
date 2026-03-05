@@ -306,6 +306,25 @@
         </div>
       </div>
 
+      <!-- Exclusions Manager -->
+      <div class="section" id="exclusions-section" style="display:none">
+        <div class="section-title" style="cursor:pointer" onclick="toggleExclusionsPanel()">
+          ⊘ Excluded Users
+          <span id="exclusions-toggle" style="color:#4b5563;font-size:10px">▸ show</span>
+        </div>
+        <div id="exclusions-panel" style="display:none;background:#161b2e;border:1px solid #1e2736;border-radius:10px;padding:16px 20px">
+          <div style="color:#6b7280;font-size:11px;margin-bottom:12px;line-height:1.7">
+            Excluded users are hidden from all analytics. Click any user row to open their profile, then click <span style="color:#F472B6">⊘ Exclude</span> to hide them.
+            You can also paste a user ID below:
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <input id="manual-exclude-input" placeholder="Paste user ID e.g. U0AD2MM6UAW" style="flex:1;background:#0d1117;border:1px solid #2d3748;border-radius:6px;padding:8px 12px;color:#f1f5f9;font-size:12px;font-family:'Space Mono',monospace"/>
+            <button onclick="excludeFromInput()" style="padding:8px 16px;border-radius:6px;font-size:11px;border:1px solid #F472B644;color:#F472B6;background:#F472B611;font-family:'Space Mono',monospace;cursor:pointer">⊘ Exclude</button>
+          </div>
+          <div id="exclusion-list"></div>
+        </div>
+      </div>
+
       <!-- Raw export -->
       <div class="section">
         <div class="section-title">📄 Raw Message Data <button class="export-btn" onclick="exportCSV('messages')">↓ Full CSV</button></div>
@@ -349,7 +368,10 @@
           <div id="modal-stats" class="modal-stats"></div>
         </div>
       </div>
-      <button class="modal-close" onclick="closeModal()">×</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button onclick="excludeUser(currentModalUserId)" style="padding:6px 12px;border-radius:6px;font-size:10px;border:1px solid #F472B644;color:#F472B6;background:#F472B611;font-family:'Space Mono',monospace;cursor:pointer;letter-spacing:1px">⊘ Exclude</button>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
     </div>
     <div class="modal-body" id="modal-body">
       <div class="modal-loading"><div class="spinner"></div> Loading posts…</div>
@@ -363,6 +385,32 @@ const COLORS = ['#4ADE80','#60A5FA','#F472B6','#FBBF24','#A78BFA','#34D399','#FB
 const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 let token = '', currentDays = 30;
+
+// IDs manually excluded by the user
+const manualExclusions = new Set(JSON.parse(localStorage.getItem('sp_exclusions') || '[]'));
+
+// Keywords that suggest a bot/integration account
+const BOT_KEYWORDS = [
+  'bot','webhook','integration','app','alert','notify','notification',
+  'deploy','ci','cd','github','gitlab','jira','jenkins','pagerduty',
+  'datadog','sentry','zapier','automate','robot','feed','rss','import'
+];
+
+function looksLikeBot(member) {
+  if (member.is_bot) return true;
+  if (member.is_app_user) return true;
+  const name = (member.real_name || member.name || '').toLowerCase();
+  const display = (member.profile?.display_name || '').toLowerCase();
+  return BOT_KEYWORDS.some(k => name.includes(k) || display.includes(k));
+}
+
+function isExcluded(userId) {
+  return manualExclusions.has(userId);
+}
+
+function saveExclusions() {
+  localStorage.setItem('sp_exclusions', JSON.stringify([...manualExclusions]));
+}
 let allChannels = [], allMembers = [], memberMap = {};
 let channelStats = [], userStats = [], replyStats = [];
 let rawMessages = [], dowCounts = new Array(7).fill(0), hourCounts = new Array(24).fill(0);
@@ -476,6 +524,9 @@ async function runAnalysis() {
     allMembers = await fetchAllMembers();
     memberMap = Object.fromEntries(allMembers.map(m => [m.id, m.real_name || m.name || m.id]));
 
+    // Track which user IDs are auto-detected bots
+    window._autoDetectedBots = new Set(allMembers.filter(looksLikeBot).map(m => m.id));
+
     const oldest = Math.floor(Date.now() / 1000) - currentDays * 86400;
     const userMsgCount = {}, userReplyCount = {}, emojiCount = {}, topPosts = [], chStats = [];
     const targets = allChannels.filter(c => selectedChannelIds.has(c.id));
@@ -493,8 +544,12 @@ async function runAnalysis() {
         dowCounts[d.getDay()]++;
         hourCounts[d.getHours()]++;
         heatmap[d.getDay()][d.getHours()]++;
-        if (m.user) userMsgCount[m.user] = (userMsgCount[m.user] || 0) + 1;
-        if (m.reply_count > 0 && m.user) userReplyCount[m.user] = (userReplyCount[m.user] || 0) + m.reply_count;
+        if (m.user && !isExcluded(m.user) && !window._autoDetectedBots?.has(m.user)) {
+          userMsgCount[m.user] = (userMsgCount[m.user] || 0) + 1;
+        }
+        if (m.reply_count > 0 && m.user && !isExcluded(m.user) && !window._autoDetectedBots?.has(m.user)) {
+          userReplyCount[m.user] = (userReplyCount[m.user] || 0) + m.reply_count;
+        }
         if (m.reactions) {
           let total = 0;
           m.reactions.forEach(r => { emojiCount[r.name] = (emojiCount[r.name]||0)+r.count; total += r.count; });
@@ -543,6 +598,7 @@ async function runAnalysis() {
 
     setLoading(false);
     document.getElementById('results').style.display   = total > 0 ? 'block' : 'none';
+    document.getElementById('exclusions-section').style.display = total > 0 ? 'block' : 'none';
     document.getElementById('empty-msg').style.display = total === 0 ? 'block' : 'none';
     updateFilterBtn();
 
@@ -615,7 +671,9 @@ function updateFilterBtn() {
 }
 
 // ── User Drill-Down Modal ──
+let currentModalUserId = null;
 function openUserModal(userId) {
+  currentModalUserId = userId;
   const user = userStats.find(u => u.id === userId);
   if (!user) return;
 
@@ -760,7 +818,7 @@ function renderUsers() {
     div.onclick = () => openUserModal(u.id);
     div.innerHTML=`<div class="row-rank">${String(i+1).padStart(2,'0')}</div>
       <div class="avatar" style="background:linear-gradient(135deg,${color}33,${color2}33);border:1.5px solid ${color}66;color:${color}">${u.name.charAt(0).toUpperCase()}</div>
-      <div class="row-name">${u.name}</div>
+      <div class="row-name">${u.name}<span style="color:#374151;font-size:10px;margin-left:6px">${u.id}</span></div>
       <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}88,${color})"></div></div>
       <div class="row-count" style="color:${color}">${u.messages.toLocaleString()}</div>`;
     el.appendChild(div);
@@ -823,6 +881,48 @@ function emojiChar(name) {
   return m[name]||'🔹';
 }
 
+// ── User Exclusions ──
+function excludeUser(userId) {
+  if (!userId) return;
+  manualExclusions.add(userId);
+  saveExclusions();
+  closeModal();
+  runAnalysis(); // rescan without this user
+}
+
+function unexcludeUser(userId) {
+  manualExclusions.delete(userId);
+  saveExclusions();
+  renderExclusionList();
+  runAnalysis();
+}
+
+function renderExclusionList() {
+  const el = document.getElementById('exclusion-list');
+  if (!el) return;
+  const all = [...manualExclusions];
+  if (!all.length) {
+    el.innerHTML = '<div style="color:#4b5563;font-size:12px;padding:8px 0">No manual exclusions.</div>';
+    return;
+  }
+  el.innerHTML = all.map(id => {
+    const name = memberMap[id] || id;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1e2736">
+      <span style="color:#9ca3af;font-size:12px">${name} <span style="color:#374151;font-size:10px">${id}</span></span>
+      <button onclick="unexcludeUser('${id}')" style="padding:3px 10px;border-radius:4px;font-size:10px;border:1px solid #4ADE8044;color:#4ADE80;background:#4ADE8011;font-family:'Space Mono',monospace;cursor:pointer">✓ Restore</button>
+    </div>`;
+  }).join('');
+  // Also show auto-detected bots
+  const bots = [...(window._autoDetectedBots||[])].filter(id => memberMap[id]);
+  if (bots.length) {
+    el.innerHTML += `<div style="color:#6b7280;font-size:10px;letter-spacing:1px;margin-top:16px;margin-bottom:8px">AUTO-DETECTED BOTS (excluded)</div>`;
+    el.innerHTML += bots.map(id => `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0">
+      <span style="color:#4b5563;font-size:12px">${memberMap[id]} <span style="color:#374151;font-size:10px">${id}</span></span>
+      <span style="color:#374151;font-size:10px">auto</span>
+    </div>`).join('');
+  }
+}
+
 // ── CSV ──
 function toCSV(rows,headers){const e=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;return[headers.join(','),...rows.map(r=>headers.map(h=>e(r[h])).join(','))].join('\n');}
 function dlCSV(csv,fn){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download=fn;a.click();}
@@ -839,6 +939,26 @@ function exportCSV(type) {
   else if(type==='topposts') dlCSV(toCSV((window._topPosts||[]),['total','channel','user','ts','text','reactions']),`${w}_top_posts_${d}.csv`);
   else if(type==='dow') dlCSV(toCSV(DAYS.map((day,i)=>({day,messages:dowCounts[i]})),['day','messages']),`${w}_dow_${d}.csv`);
   else if(type==='hours') dlCSV(toCSV(hourCounts.map((c,h)=>({hour:h,messages:c})),['hour','messages']),`${w}_hours_${d}.csv`);
+}
+
+function toggleExclusionsPanel() {
+  const panel = document.getElementById('exclusions-panel');
+  const toggle = document.getElementById('exclusions-toggle');
+  const open = panel.style.display === 'block';
+  panel.style.display = open ? 'none' : 'block';
+  toggle.textContent = open ? '▸ show' : '▾ hide';
+  if (!open) renderExclusionList();
+}
+
+function excludeFromInput() {
+  const inp = document.getElementById('manual-exclude-input');
+  const id = inp.value.trim();
+  if (!id) return;
+  manualExclusions.add(id);
+  saveExclusions();
+  inp.value = '';
+  renderExclusionList();
+  runAnalysis();
 }
 
 function exportAll(){['channels','users','replies','messages','emojis','topposts','dow','hours'].forEach((t,i)=>setTimeout(()=>exportCSV(t),i*500));}
